@@ -98,10 +98,9 @@ header_t inicializa_bmp(unsigned short int Precisao, unsigned int Largura, unsig
 /*******************************************************************************/
 //retorna a tabela de cores em forma de vetor após receber vetor de cores
 pixeltabela_t* tabela_cores(header_t cabecalho, pixel_t* Cores){
-  //cabecalho.NumCoresTabela;
-  //cabecalho.Precisao;
-  unsigned int Aux;
+  unsigned int Aux;  //variavel auxiliar
   pixeltabela_t *TabelaCores;
+
   if((cabecalho.Precisao==16)||(cabecalho.Precisao==24)){
     printf("Erro! A funcao \"tabela_cores\" nao pode ser chamada se precisao for 16 ou 24 bpp\n");
     exit(1);
@@ -123,7 +122,31 @@ pixeltabela_t* tabela_cores(header_t cabecalho, pixel_t* Cores){
     TabelaCores[i].Azul = Cores[i].Azul;
     TabelaCores[i].Reservado = 0;
   }
+  return TabelaCores;
 }
 /*******************************************************************************/
-//cria a imagem com base no cabeçalho tabela e matriz de pixel informada
-void 
+//remapear valor de 8 bit em 5 Bits
+unsigned char remap_8to5(unsigned char Byte){
+  return (unsigned char)((float)Byte * 32.0)/255.0;
+}
+/*******************************************************************************/
+//cria a imagem com base no cabeçalho e matriz de pixel informada (16 e 24 bpp)
+void criar_imagem(header_t cabecalho, pixel_t **MatrizPixel, char *NomeArquivo){
+
+  //verificação de necessidade da tabela de cores
+  if((cabecalho.Precisao!=16) && (cabecalho.Precisao!=24)){
+    printf("Erro! A funcao \"criar_imagem\" deve receber argumento de tabela de cores.\n");
+    exit(1);
+  }
+  if(cabecalho.Precisao==16){
+    //criar linha da imagem com 16bpp
+    //5 bits por canal de cor (32 possibilidades) # 8 niveis na matriz para cada nivel de pixel
+    //remapear 8 bits para 5 bits
+
+  }else{
+    //criar linha da imagem com 24bpp
+
+  }
+
+
+}
