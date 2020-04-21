@@ -13,6 +13,18 @@
 #define TABELA_COMPLETA  0
 #define SEM_TABELA       0
 
+/************************ REDEFINIÇÕES DE RÓTULOS *****************************/
+//redefinição de rotulos das estruturas
+typedef struct header                header_t;
+typedef struct pixel_tabela_cores    pixeltabela_t;
+typedef struct pixel_24bpp           pixel_t;
+
+/******************************* FUNÇÕES ***************************************/
+//inicializando arquivo de imagem (retorna estrutura de cabeçalho)
+header_t inicializa_bmp(unsigned short int Precisao, unsigned int Largura, unsigned int Altura, unsigned int NumCoresTabela);
+//retorna a tabela de cores em forma de vetor após receber vetor de cores
+pixeltabela_t* tabela_cores(header_t cabecalho, pixel_t* Cores)
+
 /*************************** ESTRUTURAS ***************************************/
 //configura temporariamente o alinhamento de memoria para 1 byte
 #pragma pack(push, 1)
@@ -46,13 +58,11 @@ struct pixel_tabela_cores{
   unsigned char Azul;
   unsigned char Reservado;
 };
+
+//estrutura de pixel de 24 bits
+struct pixel_24bpp{
+  unsigned char Vermelho;
+  unsigned char Verde;
+  unsigned char Azul;
+};
 #pragma pack(pop)
-
-/************************ REDEFINIÇÕES DE RÓTULOS *****************************/
-//redefinição de rotulos das estruturas
-typedef struct header                header_t;
-typedef struct pixel_tabela_cores    pixeltabela_t;
-
-/******************************* FUNÇÕES ***************************************/
-//inicializando arquivo de imagem (retorna estrutura de cabeçalho)
-header_t inicializa_bmp(unsigned short int Precisao, unsigned int Largura, unsigned int Altura, unsigned int NumCoresTabela);

@@ -11,8 +11,8 @@
 #include<stdio.h>
 #include"criarbitmap.h"
 
-//===============================================================================
-//função que inicializa o arquivo de imagem
+/********************************************************************************/
+//função que inicializa o arquivo de imagem retornando o cabeçalho
 header_t inicializa_bmp(unsigned short int Precisao, unsigned int Largura, unsigned int Altura, unsigned int NumCoresTabela){
   header_t cabecalho;
   unsigned int BytesTabela;       //tamanho em bytes da tabela de cores
@@ -95,3 +95,35 @@ header_t inicializa_bmp(unsigned short int Precisao, unsigned int Largura, unsig
 
   return cabecalho;
 }
+/*******************************************************************************/
+//retorna a tabela de cores em forma de vetor após receber vetor de cores
+pixeltabela_t* tabela_cores(header_t cabecalho, pixel_t* Cores){
+  //cabecalho.NumCoresTabela;
+  //cabecalho.Precisao;
+  unsigned int Aux;
+  pixeltabela_t *TabelaCores;
+  if((cabecalho.Precisao==16)||(cabecalho.Precisao==24)){
+    printf("Erro! A funcao \"tabela_cores\" nao pode ser chamada se precisao for 16 ou 24 bpp\n");
+    exit(1);
+  }
+  //ajustando variavel de auxiliar de iteração
+  if(cabecalho.NumCoresTabela==0){
+    if(cabecalho.Precisao==1) Aux = 2;
+    if(cabecalho.Precisao==4) Aux = 16;
+    if(cabecalho.Precisao==8) Aux = 256;
+  }else{
+    Aux = cabecalho.NumCoresTabela;
+  }
+  //alocando memoria para tabela de Cores
+  TabelaCores = (pixeltabela_t*)malloc(Aux * sizeof(pixeltabela_t));
+  //construindo tabela de cores
+  for(unsigned int i=0; i<Aux; i++){
+    TabelaCores[i].Vermelho = Cores[i].Vermelho;
+    TabelaCores[i].Verde = Cores[i].Verde;
+    TabelaCores[i].Azul = Cores[i].Azul;
+    TabelaCores[i].Reservado = 0;
+  }
+}
+/*******************************************************************************/
+//cria a imagem com base no cabeçalho tabela e matriz de pixel informada
+void 
