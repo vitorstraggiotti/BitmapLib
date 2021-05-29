@@ -14,15 +14,15 @@
 
 /********************************************************************************/
 //Inicialize image file (return header structure)
-void inicialize_bmp(int32_t Width,
-					int32_t Heigth,
-					uint32_t ResolutionX,
-					uint32_t ResolutionY,
-					pixel_t **PixelMatrix,
-					const char *Filename)
+void create_bmp(int32_t Width,
+				int32_t Heigth,
+				u_int32_t ResolutionX,
+				u_int32_t ResolutionY,
+				pixel_t **PixelMatrix,
+				const char *Filename)
 {
 	header_t ImageHeader;
-	uint8_t ByteZero = 0;
+	u_int8_t ByteZero = 0;
 
 	//evaluate image dimensions
 	if((Width > 20000)||(Heigth > 20000))
@@ -31,16 +31,27 @@ void inicialize_bmp(int32_t Width,
 		exit(EXIT_FAILURE);
 	}
 	
-	if((Width < 2)||(Height < 2))
+	if((Width < 2)||(Heigth < 2))
 	{
 		printf("Error: Image dimensions should be equal or greater than 2 by 2");
 		exit(EXIT_FAILURE);
 	}
 
+	ImageHeader.CharID_1 = 0x42;
+	ImageHeader.CharID_2 = 0x4D;
+	ImageHeader.Reserved_1 = 0;
+	ImageHeader.Reserved_2 = 0;
+	ImageHeader.PixelOffsetMatrix = 54;
+	ImageHeader.SizeHeader2 = 40;
 	ImageHeader.Width = Width;
-	ImageHeader.Heigth = Heigth;
-	ImageHeader.ResolutionX = RESOLUTION_X;
-	ImageHeader.ResolutionY = RESOLUTION_Y;
+	ImageHeader.Height = Heigth;
+	ImageHeader.Planes = 1;
+	ImageHeader.ColorDepth = 24;
+	ImageHeader.Compression = 0;
+	ImageHeader.ResolutionX = ResolutionX;
+	ImageHeader.ResolutionY = ResolutionY;
+	ImageHeader.NumColorsInTable = 0;
+	ImageHeader.NumImportantColors = 0;
 
 	//Finding pixel matrix size and adding padding
 	int32_t SizeWidthByte = Width * 3;			//size of one line of the image in bytes
@@ -51,10 +62,10 @@ void inicialize_bmp(int32_t Width,
 		SizeWidthByte = SizeWidthByte + 4 - TotalWidthMod4;
 	}
 	
-	ImageHeader.SizePixelMatriz = (uint32_t) (SizeWidthByte * Heigth);
+	ImageHeader.SizePixelMatrix = (u_int32_t) (SizeWidthByte * Heigth);
 
 	//Finding total image file size
-	ImageHeader.FileSize = 54 + ImageHeader.SizePixelMatriz;
+	ImageHeader.FileSize = 54 + ImageHeader.SizePixelMatrix;
 
 	//creating image file
 	FILE *ImageFile;
@@ -78,18 +89,17 @@ void inicialize_bmp(int32_t Width,
 			{
 				if(TotalWidthMod4 == 1)
 				{
-					fwrite(&ByteZero, sizeof(uint8_t), 3, ImageFile);
+					fwrite(&ByteZero, sizeof(u_int8_t), 3, ImageFile);
 				}else if(TotalWidthMod4 == 2){
-					fwrite(&ByteZero, sizeof(uint8_t), 2, ImageFile);
+					fwrite(&ByteZero, sizeof(u_int8_t), 2, ImageFile);
 				}else if(TotalWidthMod4 == 3){
-					fwrite(&ByteZero, sizeof(uint8_t), 1, ImageFile);
+					fwrite(&ByteZero, sizeof(u_int8_t), 1, ImageFile);
 				}
 			}
 		}
 	}
 	
 	fclose(ImageFile);
-	return 1;
 }
 
 
