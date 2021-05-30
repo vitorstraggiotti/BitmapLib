@@ -1,13 +1,13 @@
 
-#include"create_bitmap.h"
+#include"bitmap.h"
 #include<stdio.h>
 #include<stdlib.h>
 
 int main(void)
 {
 	pixel_t **Image;
-	int32_t Width = 12000;
-	int32_t Height = 12000;
+	int32_t Width = 4000;
+	int32_t Height = 4000;
 	
 	Image = malloc(Height * sizeof(pixel_t*));
 	for(int32_t i = 0; i < Height; i++)
