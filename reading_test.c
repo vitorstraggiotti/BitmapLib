@@ -13,19 +13,18 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	
-	int Width, Height;
+	dimensions_t Dimension;
 	pixel_t **PixelMatrix;
+	pixel_t Color;
 	
-	Width = width_BMP(argv[1]);
-	Height = height_BMP(argv[1]);
-	
+	Dimension = dimensions_BMP(argv[1]);
 	PixelMatrix = read_BMP(argv[1]);
 	
-	for(int row = 0; row < Height; row++)
+	for(int row = 0; row < Dimension.Height; row++)
 	{
-		for(int column = 0; column < Width; column++)
+		for(int column = 0; column < Dimension.Width; column++)
 		{
-			if((column == Width/2) || (row == Height/2))
+			if((column == Dimension.Width/2) || (row == Dimension.Height/2))
 			{
 				PixelMatrix[row][column].Red = 255;
 				PixelMatrix[row][column].Green = 0;
@@ -34,5 +33,10 @@ int main(int argc, char *argv[])
 		}
 	}
 	
-	create_BMP(Width, Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "saida.bmp");
+	Color.Red = 0;
+	Color.Green = 0;
+	Color.Blue = 255;
+	circumference(Dimension, PixelMatrix, 2000, 2000, 100, Color);
+	
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "saida.bmp");
 }

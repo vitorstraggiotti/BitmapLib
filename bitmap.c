@@ -11,6 +11,7 @@
 //unsigned long int = 8
 #include<stdlib.h>
 #include<stdio.h>
+#include<math.h>
 #include"bitmap.h"
 
 /********************************************************************************/
@@ -103,10 +104,11 @@ void create_BMP(int Width,
 	fclose(ImageFile);
 }
 /******************************************************************************/
-//Find Width of the BMP image
-int width_BMP(const char *Filename)
+//Find dimensions of the BMP image
+dimensions_t dimensions_BMP(const char *Filename)
 {
 	header_t FileHeader;
+	dimensions_t Dimension;
 	FILE *Image;
 	
 	Image = fopen(Filename, "rb");
@@ -121,34 +123,11 @@ int width_BMP(const char *Filename)
 	
 	if((FileHeader.CharID_1 == 0x42) && (FileHeader.CharID_2 == 0x4D))
 	{
-		return FileHeader.Width;
+		Dimension.Width = FileHeader.Width;
+		Dimension.Height = FileHeader.Height;
+		return Dimension;
 	}else{
 		printf("Error: Input file is not a supported BMP image for width extraction");
-		exit(EXIT_FAILURE);
-	}
-}
-/******************************************************************************/
-//Find Height of the BMP image
-int height_BMP(const char *Filename)
-{
-	header_t FileHeader;
-	FILE *Image;
-	
-	Image = fopen(Filename, "rb");
-	if(Image == NULL)
-	{
-		printf("Error: problem occured while reading file for height information");
-		exit(EXIT_FAILURE);
-	}
-	
-	fread(&FileHeader, sizeof(header_t), 1, Image);
-	fclose(Image);
-	
-	if((FileHeader.CharID_1 == 0x42) && (FileHeader.CharID_2 == 0x4D))
-	{
-		return FileHeader.Height;
-	}else{
-		printf("Error: Input file is not a supported BMP image for height extraction");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -203,8 +182,50 @@ pixel_t **read_BMP(const char *Filename)
 	
 	return PixelMatrix;
 }
+/******************************************************************************/
+//Draw a circle on the pixel matrix
+pixel_t **circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
+{
 
-
+}
+/******************************************************************************/
+//Draw a circumference on the pixel matrix
+void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
+{
+	int RowMin, RowMax, ColumnMin, ColumnMax;
+	
+	//Verifying coordinates boundaries
+	if((Pos_x < 0) || (Pos_x > Dimension.Width))
+	{
+		printf("Error: circumference X coordinate are out of the screen. Drawing terminated");
+		exit(EXIT_FAILURE);
+	}else if((Pos_y < 0) || (Pos_y > Dimension.Height))
+	{
+		printf("Error: circumference Y coordinate are out of the screen. Drawing terminated");
+		exit(EXIT_FAILURE);
+	}
+	
+	//Creating drawing boundaries
+	RowMin = Dimension.Height - Pos_y - Radius;
+	if(RowMin < 0) RowMin = 0;
+	RowMax = Dimension.Height - Pos_y + Radius;
+	if(RowMax > Dimension.Height) RowMax = Dimension.Height;
+	
+	ColumnMin = Pos_x - Radius;
+	if(ColumnMin < 0) ColumnMin = 0;
+	ColumnMax = Pos_x + Radius;
+	if(ColumnMax > Dimension.Width) ColumnMax = Dimension.Width;
+	
+	//Drawing circumference
+	for(int Row = RowMin; Row <= RowMax; Row++)
+	{
+		for(int Column = ColumnMin; Column <= ColumnMax; Column++)
+		{
+			
+		}
+	}
+	
+} 
 
 
 

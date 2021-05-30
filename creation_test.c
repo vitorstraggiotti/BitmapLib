@@ -6,14 +6,14 @@
 int main(void)
 {
 	pixel_t **Image;
-	int32_t Width = 4000;
-	int32_t Height = 4000;
+	int Width = 4000;
+	int Height = 4000;
 	
 	Image = malloc(Height * sizeof(pixel_t*));
-	for(int32_t i = 0; i < Height; i++)
+	for(int i = 0; i < Height; i++)
 	{
 		Image[i] = malloc(Width * sizeof(pixel_t));
-		for(int32_t j = 0; j < Width; j++)
+		for(int j = 0; j < Width; j++)
 		{
 			Image[i][j].Red = 0;
 			Image[i][j].Green = 0;
@@ -23,9 +23,9 @@ int main(void)
 
 
 	printf("\n");
-	for(int32_t row = 0; row < Height; row++)
+	for(int row = 0; row < Height; row++)
 	{
-		for(int32_t column = 0; column < Width; column++)
+		for(int column = 0; column < Width; column++)
 		{
 			Image[row][column].Red = ((Height - row) * 255)/Height;
 			Image[row][column].Green = ((Height - row) * 255)/Height;
@@ -33,7 +33,7 @@ int main(void)
 		}
 	}
 	
-	create_bmp(Width, Height, RESOLUTION_X, RESOLUTION_Y, Image, "teste.bmp");
+	create_BMP(Width, Height, RESOLUTION_X, RESOLUTION_Y, Image, "teste.bmp");
 
 	return 0;
 }

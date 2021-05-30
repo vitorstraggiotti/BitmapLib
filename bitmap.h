@@ -14,6 +14,7 @@
 
 typedef struct full_header			header_t;
 typedef struct pixel_24bpp			pixel_t;
+typedef struct dimensions			dimensions_t;
 
 /******************************* FUNCTIONS ************************************/
 //create image file (return header structure)
@@ -25,19 +26,25 @@ void create_BMP(int Width,
 				const char *Filename);
 //------------------------------------------------------------------------------
 //Find Width of the BMP image
-int width_BMP(const char *Filename);
-//------------------------------------------------------------------------------
-//Find Height of the BMP image
-int height_BMP(const char *Filename);
+dimensions_t dimensions_BMP(const char *Filename);
 //------------------------------------------------------------------------------
 //Read BMP image to a pixel matrix
 pixel_t **read_BMP(const char *Filename);
+
+
+//------------------------------------------------------------------------------
+//Draw a circle on the pixel matrix
+pixel_t **circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color);
+//------------------------------------------------------------------------------
+//Draw a circumference on the pixel matrix
+void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color);
 
 /*************************** STRUCTURES ***************************************/
 //temporarily set memory alignment to 1 byte
 #pragma pack(push, 1)
 //file header structure
-struct full_header{
+struct full_header
+{
 	//General file header (header_1 = 14 bytes)
 	unsigned char CharID_1;						//Identification code for BMP file
 	unsigned char CharID_2;
@@ -61,13 +68,18 @@ struct full_header{
 };
 
 //24 bits pixel structure
-struct pixel_24bpp{
+struct pixel_24bpp
+{
   unsigned char Blue;
   unsigned char Green;
   unsigned char Red;
 };
-
 #pragma pack(pop)
 
+struct dimensions
+{
+	int Width;
+	int Height;
+};
 #endif
 
