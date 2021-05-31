@@ -184,7 +184,7 @@ pixel_t **read_BMP(const char *Filename)
 }
 /******************************************************************************/
 //Draw a circle on the pixel matrix
-pixel_t **circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
+void circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
 {
 
 }
@@ -193,6 +193,8 @@ pixel_t **circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int P
 void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
 {
 	int RowMin, RowMax, ColumnMin, ColumnMax;
+	int CircumferenceX, CircumferenceY, StepX, StepY;
+	int PreviousStepY;
 	
 	//Verifying coordinates boundaries
 	if((Pos_x < 0) || (Pos_x > Dimension.Width))
@@ -205,26 +207,102 @@ void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int
 		exit(EXIT_FAILURE);
 	}
 	
-	//Creating drawing boundaries
-	RowMin = Dimension.Height - Pos_y - Radius;
-	if(RowMin < 0) RowMin = 0;
-	RowMax = Dimension.Height - Pos_y + Radius;
-	if(RowMax > Dimension.Height) RowMax = Dimension.Height;
-	
-	ColumnMin = Pos_x - Radius;
-	if(ColumnMin < 0) ColumnMin = 0;
-	ColumnMax = Pos_x + Radius;
-	if(ColumnMax > Dimension.Width) ColumnMax = Dimension.Width;
 	
 	//Drawing circumference
-	for(int Row = RowMin; Row <= RowMax; Row++)
+	for(StepX = 0; StepX <= Radius; StepX++)
 	{
-		for(int Column = ColumnMin; Column <= ColumnMax; Column++)
+		StepY = (int)((float)Radius * sqrt(1.0 - pow((float)StepX/(float)Radius, 2)));
+		
+		//1° quadrant
+		CircumferenceX = Pos_x + StepX;
+		CircumferenceY = (Dimension.Height - Pos_y) + StepY;
+		if((CircumferenceX <= Dimension.Width) && (CircumferenceY <= Dimension.Height))
 		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
 			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (PreviousStepY - StepY); tmp > 0; tmp--)
+				{
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+				}
+			}
 		}
+		
+		//2° quadrant
+		CircumferenceX = Pos_x - StepX;
+		CircumferenceY = (Dimension.Height - Pos_y) + StepY;
+		if((CircumferenceX >= 0) && (CircumferenceY <= Dimension.Height))
+		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
+			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (PreviousStepY - StepY); tmp > 0; tmp--)
+				{
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+				}
+			}
+		}
+		
+		//3° quadrant
+		CircumferenceX = Pos_x - StepX;
+		CircumferenceY = (Dimension.Height - Pos_y) - StepY;
+		if((CircumferenceX >= 0) && (CircumferenceY >= 0))
+		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
+			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (StepY - PreviousStepY); tmp < 0; tmp++)
+				{
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+				}
+			}
+		}
+		
+		//4° quadrant
+		CircumferenceX = Pos_x + StepX;
+		CircumferenceY = (Dimension.Height - Pos_y) - StepY;
+		if((CircumferenceX <= Dimension.Width) && (CircumferenceY >= 0))
+		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
+			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (StepY - PreviousStepY); tmp < 0; tmp++)
+				{
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+					PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+				}
+			}
+		}
+		
 	}
-	
+
 } 
 
 

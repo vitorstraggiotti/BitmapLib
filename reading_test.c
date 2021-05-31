@@ -36,7 +36,13 @@ int main(int argc, char *argv[])
 	Color.Red = 0;
 	Color.Green = 0;
 	Color.Blue = 255;
-	circumference(Dimension, PixelMatrix, 2000, 2000, 100, Color);
+	
+	int Radius = 10;
+	for(int i = 0; i < 20; i++)
+	{
+		circumference(Dimension, PixelMatrix, 2000, 2000, Radius, Color);
+		Radius += 20;
+	}
 	
 	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "saida.bmp");
 }

@@ -34,7 +34,7 @@ pixel_t **read_BMP(const char *Filename);
 
 //------------------------------------------------------------------------------
 //Draw a circle on the pixel matrix
-pixel_t **circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color);
+void circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color);
 //------------------------------------------------------------------------------
 //Draw a circumference on the pixel matrix
 void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color);
