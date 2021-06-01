@@ -6,9 +6,9 @@
 int main(void)
 {
 	pixel_t **Image;
-	int Width = 4000;
-	int Height = 4000;
-	
+	int Width = 10;
+	int Height = 10;
+
 	Image = malloc(Height * sizeof(pixel_t*));
 	for(int i = 0; i < Height; i++)
 	{

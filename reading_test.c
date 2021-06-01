@@ -1,15 +1,15 @@
 
 
-#include<stdio.h>
-#include<stdlib.h>
-#include"bitmap.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "bitmap.h"
 
 int main(int argc, char *argv[])
 {
 	if(argc != 2)
 	{
 		printf("Error: wrong number of arguments.\n");
-		printf("Correct use: reading_test <path_to_image>");
+		printf("Correct use: reading_test <path_to_image>\n\n");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -33,16 +33,78 @@ int main(int argc, char *argv[])
 		}
 	}
 	
-	Color.Red = 0;
+	//print file header information
+	display_header(argv[1]);
+	
+/*	Color.Red = 0;
 	Color.Green = 0;
 	Color.Blue = 255;
+	circle(Dimension, PixelMatrix, Dimension.Width/2, Dimension.Height/2, 300, Color);
 	
-	int Radius = 10;
-	for(int i = 0; i < 20; i++)
+	Color.Red = 0;
+	Color.Green = 255;
+	Color.Blue = 0;
+	circumference(Dimension, PixelMatrix, Dimension.Width/2, Dimension.Height/2, 310, Color);
+	
+		Color.Red = 0;
+	Color.Green = 0;
+	Color.Blue = 255;
+	circle(Dimension, PixelMatrix, 100, 100, 300, Color);
+	
+	Color.Red = 0;
+	Color.Green = 255;
+	Color.Blue = 0;
+	circumference(Dimension, PixelMatrix, 100, 100, 310, Color);
+	
+		Color.Red = 0;
+	Color.Green = 0;
+	Color.Blue = 255;
+	circle(Dimension, PixelMatrix, Dimension.Width - 100, 100, 300, Color);
+	
+	Color.Red = 0;
+	Color.Green = 255;
+	Color.Blue = 0;
+	circumference(Dimension, PixelMatrix, Dimension.Width - 100, 100, 310, Color);
+	
+		Color.Red = 0;
+	Color.Green = 0;
+	Color.Blue = 255;
+	circle(Dimension, PixelMatrix, 100, Dimension.Height - 100, 300, Color);
+	
+	Color.Red = 0;
+	Color.Green = 255;
+	Color.Blue = 0;
+	circumference(Dimension, PixelMatrix, 100, Dimension.Height - 100, 310, Color);
+	
+		Color.Red = 0;
+	Color.Green = 0;
+	Color.Blue = 255;
+	circle(Dimension, PixelMatrix, Dimension.Width - 100, Dimension.Height - 100, 300, Color);
+	
+	Color.Red = 0;
+	Color.Green = 255;
+	Color.Blue = 0;
+	circumference(Dimension, PixelMatrix, Dimension.Width - 100, Dimension.Height - 100, 310, Color);
+*/	
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "Saida.bmp");
+
+/*	char *OutFilename;
+	
+	OutFilename = malloc(14 * sizeof(char));
+	
+	for(int Frame = 0; Frame < 300; Frame++)
 	{
-		circumference(Dimension, PixelMatrix, 2000, 2000, Radius, Color);
-		Radius += 20;
+		sprintf(OutFilename, "Image-%d.bmp", Frame);
+		circumference(Dimension, PixelMatrix, Dimension.Width/2, Dimension.Height/2, ((3 * Frame)/10) + 10, Color);
+		create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, OutFilename);
+		printf("Created frame: %d/300\n", Frame);
 	}
-	
-	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "saida.bmp");
+*/
 }
+
+
+
+
+
+
+
