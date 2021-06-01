@@ -16,6 +16,7 @@
 
 /********************************************************************************/
 //Create BMP image file (header used: BITMAPINFOHEADER)
+//REDO USING 2 DIFERENT HEADERS
 void create_BMP(int Width,
 				int Height,
 				unsigned int ResolutionX,
@@ -109,6 +110,7 @@ void create_BMP(int Width,
 }
 /******************************************************************************/
 //Find dimensions of the BMP image
+//REDO CONSIDERING ALL BMP HEADER TYPES
 dimensions_t dimensions_BMP(const char *Filename)
 {
 	header_t FileHeader;
@@ -144,6 +146,7 @@ dimensions_t dimensions_BMP(const char *Filename)
 }
 /******************************************************************************/
 //Read BMP image to a pixel matrix
+//REDO CONSIDERING ALL BMP HEADER TYPES
 pixel_t **read_BMP(const char *Filename)
 {
 	header_t FileHeader;
@@ -195,6 +198,7 @@ pixel_t **read_BMP(const char *Filename)
 }
 /******************************************************************************/
 //Draw a circle on the pixel matrix
+//CHANGE COORDINATE SYSTEM
 void circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
 {
 	int RowMin, RowMax, ColumnMin, ColumnMax;
@@ -275,6 +279,7 @@ void circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y,
 }
 /******************************************************************************/
 //Draw a circumference on the pixel matrix
+//CHANGE COORDINATE SYSTEM
 void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
 {
 	int RowMin, RowMax, ColumnMin, ColumnMax;
@@ -641,11 +646,15 @@ void display_header(const char *Filename)
 	{
 	
 		bmp_headerV4_t BMPHeaderV4;
+		
+		//continue
 	
 	}else if((FileHeader.OffsetPixelMatrix - sizeof(file_header_t)) == BITMAP_V5_INFOHEADER)
 	{
 	
 		bmp_headerV5_t BMPHeaderV5;
+		
+		//continue
 	
 	}else
 	{
