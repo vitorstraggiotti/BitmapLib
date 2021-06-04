@@ -15,8 +15,8 @@
 #define BITMAP_V5_INFOHEADER	124
 
 /* Resolution in pixel/meter (39.3701 * DPI) */
-#define RESOLUTION_X	2835
-#define RESOLUTION_Y	2835
+#define RESOLUTION_X	2834
+#define RESOLUTION_Y	2834
 
 /********************************************************************************
  * bmp_headerV1_t ==> BITMAPINFOHEADER		(40 bytes)							*

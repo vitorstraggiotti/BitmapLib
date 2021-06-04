@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
 	pixel_t Color;
 	
 	Dimension = dimensions_BMP(argv[1]);
-	PixelMatrix = read_BMP(argv[1]);
+	printf("Width = %d // Height = %d", Dimension.Width, Dimension.Height);
+/*	PixelMatrix = read_BMP(argv[1]);
 	
 	for(int row = 0; row < Dimension.Height; row++)
 	{
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-	
+*/	
 	//print file header information
 	display_header(argv[1]);
 	
@@ -86,7 +87,7 @@ int main(int argc, char *argv[])
 	Color.Blue = 0;
 	circumference(Dimension, PixelMatrix, Dimension.Width - 100, Dimension.Height - 100, 310, Color);
 */	
-	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "Saida.bmp");
+//	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "Saida.bmp");
 
 /*	char *OutFilename;
 	

@@ -24,8 +24,11 @@ void create_BMP(int Width,
 				pixel_t **PixelMatrix,
 				const char *Filename)
 {
-	header_t ImageHeader;
-	u_int8_t ByteZero = 0;
+	file_header_t	FileHeader;
+	bmp_headerV1_t	BMPHeaderV1;
+	u_int8_t		ByteZero = 0;
+	int 			SizeWidthByte;
+	int				TotalWidthMod4;
 
 	//evaluate image dimensions
 	if((Width > 20000)||(Height > 20000))
@@ -40,35 +43,36 @@ void create_BMP(int Width,
 		exit(EXIT_FAILURE);
 	}
 
-	ImageHeader.CharID_1 = 0x42;
-	ImageHeader.CharID_2 = 0x4D;
-	ImageHeader.Reserved_1 = 0;
-	ImageHeader.Reserved_2 = 0;
-	ImageHeader.OffsetPixelMatrix = 54;
-	ImageHeader.SizeHeader = 40;
-	ImageHeader.Width = Width;
-	ImageHeader.Height = Height;
-	ImageHeader.Planes = 1;
-	ImageHeader.ColorDepth = 24;
-	ImageHeader.Compression = 0;
-	ImageHeader.ResolutionX = ResolutionX;
-	ImageHeader.ResolutionY = ResolutionY;
-	ImageHeader.NumColorsInTable = 0;
-	ImageHeader.NumImportantColors = 0;
+	FileHeader.CharID_1 = 0x42;
+	FileHeader.CharID_2 = 0x4D;
+	FileHeader.Reserved_1 = 0;
+	FileHeader.Reserved_2 = 0;
+	FileHeader.OffsetPixelMatrix = 54;
+	
+	BMPHeaderV1.SizeHeader = 40;
+	BMPHeaderV1.Width = Width;
+	BMPHeaderV1.Height = Height;
+	BMPHeaderV1.Planes = 1;
+	BMPHeaderV1.ColorDepth = 24;
+	BMPHeaderV1.Compression = 0;
+	BMPHeaderV1.ResolutionX = ResolutionX;
+	BMPHeaderV1.ResolutionY = ResolutionY;
+	BMPHeaderV1.NumColorsInTable = 0;
+	BMPHeaderV1.NumImportantColors = 0;
 
 	//Finding pixel matrix size and adding padding
-	int SizeWidthByte = Width * 3;			//size of one line in bytes
-	int TotalWidthMod4 = SizeWidthByte % 4;
+	SizeWidthByte = Width * 3;			//size of one line in bytes
+	TotalWidthMod4 = SizeWidthByte % 4;
 	
 	if(TotalWidthMod4 != 0)
 	{
 		SizeWidthByte = SizeWidthByte + 4 - TotalWidthMod4;
 	}
 	
-	ImageHeader.SizePixelMatrix = SizeWidthByte * Height;
+	BMPHeaderV1.SizePixelMatrix = SizeWidthByte * Height;
 
 	//Finding total image file size
-	ImageHeader.FileSize = 54 + ImageHeader.SizePixelMatrix;
+	FileHeader.FileSize = 54 + BMPHeaderV1.SizePixelMatrix;
 
 	//creating image file
 	FILE *ImageFile;
@@ -80,7 +84,8 @@ void create_BMP(int Width,
 		exit(EXIT_FAILURE);
 	}
 	
-	fwrite(&ImageHeader, sizeof(header_t), 1, ImageFile);
+	fwrite(&FileHeader, sizeof(file_header_t), 1, ImageFile);
+	fwrite(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, ImageFile);
 	
 	for(int row = 0; row < Height; row++)
 	{
@@ -113,10 +118,16 @@ void create_BMP(int Width,
 //REDO CONSIDERING ALL BMP HEADER TYPES
 dimensions_t dimensions_BMP(const char *Filename)
 {
-	header_t FileHeader;
+	file_header_t	FileHeader;
+	bmp_headerV1_t	BMPHeaderV1;
+	bmp_headerV2_t	BMPHeaderV2;
+	bmp_headerV3_t	BMPHeaderV3;
+	bmp_headerV4_t	BMPHeaderV4;
+	bmp_headerV5_t	BMPHeaderV5;
 	dimensions_t Dimension;
 	FILE *Image;
 	
+	//Open image
 	Image = fopen(Filename, "rb");
 	if(Image == NULL)
 	{
@@ -124,27 +135,65 @@ dimensions_t dimensions_BMP(const char *Filename)
 		exit(EXIT_FAILURE);
 	}
 	
-	fread(&FileHeader, sizeof(header_t), 1, Image);
-	fclose(Image);
+	//Acquire file header and verify if valid
+	fread(&FileHeader, sizeof(file_header_t), 1, Image);
 	
 	if((FileHeader.CharID_1 != 0x42) || (FileHeader.CharID_2 != 0x4D))
 	{
-		printf("Error: input file have incompatible BMP file identifier. (should be: \"BM\")\n");
-		printf("       current file identifier: \"%c%c\"\n\n", FileHeader.CharID_1, FileHeader.CharID_2);
+		printf("Error: input file is not a BMP image or have incompatible BMP file identifier. (should be: \"BM\")\n");
 		exit(EXIT_FAILURE);
-	}/*else if(FileHeader.SizeHeader != 40)
-	{
-		printf("Error: input image file have incompatible BMP header size. (should be: 40 bytes)\n");
-		printf("       current BMP header size value: %u bytes\n\n", FileHeader.SizeHeader);
-		exit(EXIT_FAILURE);
-	}*/else
-	{
-		Dimension.Width = FileHeader.Width;
-		Dimension.Height = FileHeader.Height;
-		return Dimension;
 	}
+	
+	//Finding out BMP header version and reading it
+	switch(FileHeader.OffsetPixelMatrix - sizeof(file_header_t))
+	{
+		case BITMAP_V1_INFOHEADER :
+			fread(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, Image);
+			Dimension.Width = BMPHeaderV1.Width;
+			Dimension.Height = BMPHeaderV1.Height;
+			break;
+			
+		case BITMAP_V2_INFOHEADER :
+			fread(&BMPHeaderV2, sizeof(bmp_headerV2_t), 1, Image);
+			Dimension.Width = BMPHeaderV2.Width;
+			Dimension.Height = BMPHeaderV2.Height;
+			break;
+		
+		case BITMAP_V3_INFOHEADER :
+			fread(&BMPHeaderV3, sizeof(bmp_headerV3_t), 1, Image);
+			Dimension.Width = BMPHeaderV3.Width;
+			Dimension.Height = BMPHeaderV3.Height;
+			break;
+		
+		case BITMAP_V4_INFOHEADER :
+			fread(&BMPHeaderV4, sizeof(bmp_headerV4_t), 1, Image);
+			Dimension.Width = BMPHeaderV4.Width;
+			Dimension.Height = BMPHeaderV4.Height;
+			break;
+			
+		case BITMAP_V5_INFOHEADER :
+			fread(&BMPHeaderV5, sizeof(bmp_headerV5_t), 1, Image);
+			Dimension.Width = BMPHeaderV5.Width;
+			Dimension.Height = BMPHeaderV5.Height;
+			break;
+			
+		default :
+			printf("Error: bitmap header is not supported. Suported bitmap headers for reading:\n");
+			printf("       - BITMAPIFOHEADER     (V1)\n");
+			printf("       - BITMAPV2INFOHEADER  (V2)\n");
+			printf("       - BITMAPV3INFOHEADER  (V3)\n");
+			printf("       - BITMAPV4HEADER      (V4)\n");
+			printf("       - BITMAPV5HEADER      (V5)\n");
+			exit(EXIT_FAILURE);
+	}
+
+	fclose(Image);
+
+	return Dimension;
+
 }
 /******************************************************************************/
+#if 0
 //Read BMP image to a pixel matrix
 //REDO CONSIDERING ALL BMP HEADER TYPES
 pixel_t **read_BMP(const char *Filename)
@@ -411,10 +460,16 @@ void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int
 
 } 
 /******************************************************************************/
-//Display header information
+#endif
+//Display header information [OK]
 void display_header(const char *Filename)
 {		
 	file_header_t FileHeader;
+	bmp_headerV1_t BMPHeaderV1;
+	bmp_headerV2_t BMPHeaderV2;
+	bmp_headerV3_t BMPHeaderV3;
+	bmp_headerV4_t BMPHeaderV4;
+	bmp_headerV5_t BMPHeaderV5;
 	FILE *File;
 	
 	//Opening image
@@ -434,236 +489,459 @@ void display_header(const char *Filename)
 	printf("Reserved_2: %u\n", FileHeader.Reserved_2);
 	printf("Offset until pixel matrix: %u\n\n", FileHeader.OffsetPixelMatrix);
 	
-	//Print BMP header information
-	if((FileHeader.OffsetPixelMatrix - sizeof(file_header_t)) == BITMAP_V1_INFOHEADER)
+	//Print Windows BMP header information
+	switch(FileHeader.OffsetPixelMatrix - sizeof(file_header_t))
 	{
-		bmp_headerV1_t BMPHeaderV1;
-		
-		fread(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, File);
-		printf("BMP header type: BITMAPINFOHEADER (V1)\n");
-		printf("BMP header size ............... %u bytes\n", BMPHeaderV1.SizeHeader);
-		printf("Image width ................... %d pixels\n", BMPHeaderV1.Width);
-		printf("Image Height .................. %d pixels\n", BMPHeaderV1.Height);
-		printf("Number of color plnaes ........ %u\n", BMPHeaderV1.Planes);
-		printf("Bits per pixel ................ %u\n", BMPHeaderV1.ColorDepth);
-		printf("Image size .................... %u", BMPHeaderV1.SizePixelMatrix);
-		printf("X axis printing resolution .... %d", BMPHeaderV1.ResolutionX);
-		printf("Y axis printing resolution .... %d", BMPHeaderV1.ResolutionY);
-		printf("Number of palette colors ...... %u", BMPHeaderV1.NumColorsInTable);
-		printf("Number of important colors .... %u", BMPHeaderV1.NumImportantColors);
-		
-		//Print compression method
-		printf("Compression method ............ ");
-		switch(BMPHeaderV1.Compression)
-		{
-			case 0 :
-				printf("none (ID code: BI_RGB)\n");
-				break;
-				
-			case 1 :
-				printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n");
-				break;
-				
-			case 2 :
-				printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n");
-				break;
-				
-			case 3 :
-				printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n");
-				break;
-				
-			case 4 :
-				printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n");
-				break;
-				
-			case 5 :
-				printf("Undefined (ID code: BI_PNG)\n");
-				break;
-				
-			case 6 :
-				printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n");
-				break;
-				
-			case 11 :
-				printf("none (ID code: BI_CMYK)\n");
-				break;
-				
-			case 12 :
-				printf("RLE-8 (ID code: BI_CMYKRLE8)");
-				break;
-				
-			case 13 :
-				printf("RLE-4 (ID code: BI_CMYKRLE4)");
-				break;
-				
-			default :
-				printf("Error! invalid value");
-		}
+		//----------------------------------------------------------------------
+		case BITMAP_V1_INFOHEADER :
+			
+			fread(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, File);
+			printf("BMP header type: BITMAPINFOHEADER (V1)\n");
+			printf("BMP header size ............... %u bytes\n", BMPHeaderV1.SizeHeader);
+			printf("Image width ................... %d pixels\n", BMPHeaderV1.Width);
+			printf("Image Height .................. %d pixels\n", BMPHeaderV1.Height);
+			printf("Number of color plnaes ........ %u\n", BMPHeaderV1.Planes);
+			printf("Bits per pixel ................ %u\n", BMPHeaderV1.ColorDepth);
+			printf("Image size .................... %u\n", BMPHeaderV1.SizePixelMatrix);
+			printf("X axis printing resolution .... %d\n", BMPHeaderV1.ResolutionX);
+			printf("Y axis printing resolution .... %d\n", BMPHeaderV1.ResolutionY);
+			printf("Number of palette colors ...... %u\n", BMPHeaderV1.NumColorsInTable);
+			printf("Number of important colors .... %u\n", BMPHeaderV1.NumImportantColors);
+			
+			//Print compression method
+			printf("Compression method ............ ");
+			switch(BMPHeaderV1.Compression)
+			{
+				case 0 :
+					printf("none (ID code: BI_RGB)\n\n");
+					break;
+					
+				case 1 :
+					printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n\n");
+					break;
+					
+				case 2 :
+					printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n\n");
+					break;
+					
+				case 3 :
+					printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n\n");
+					break;
+					
+				case 4 :
+					printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n\n");
+					break;
+					
+				case 5 :
+					printf("Undefined (ID code: BI_PNG)\n\n");
+					break;
+					
+				case 6 :
+					printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n\n");
+					break;
+					
+				case 11 :
+					printf("none (ID code: BI_CMYK)\n\n");
+					break;
+					
+				case 12 :
+					printf("RLE-8 (ID code: BI_CMYKRLE8)\n\n");
+					break;
+					
+				case 13 :
+					printf("RLE-4 (ID code: BI_CMYKRLE4)\n\n");
+					break;
+					
+				default :
+					printf("Error! invalid value\n\n");
+			}
+			
+			break;
 
-	}else if((FileHeader.OffsetPixelMatrix - sizeof(file_header_t)) == BITMAP_V2_INFOHEADER)
-	{
+		//----------------------------------------------------------------------
+		case BITMAP_V2_INFOHEADER :
+			
+			fread(&BMPHeaderV2, sizeof(bmp_headerV2_t), 1, File);
+			printf("BMP header type: BITMAPV2INFOHEADER (V2)\n");
+			printf("BMP header size ............... %u bytes\n", BMPHeaderV2.SizeHeader);
+			printf("Image width ................... %d pixels\n", BMPHeaderV2.Width);
+			printf("Image Height .................. %d pixels\n", BMPHeaderV2.Height);
+			printf("Number of color plnaes ........ %u\n", BMPHeaderV2.Planes);
+			printf("Bits per pixel ................ %u\n", BMPHeaderV2.ColorDepth);
+			printf("Image size .................... %u\n", BMPHeaderV2.SizePixelMatrix);
+			printf("X axis printing resolution .... %d\n", BMPHeaderV2.ResolutionX);
+			printf("Y axis printing resolution .... %d\n", BMPHeaderV2.ResolutionY);
+			printf("Number of palette colors ...... %u\n", BMPHeaderV2.NumColorsInTable);
+			printf("Number of important colors .... %u\n", BMPHeaderV2.NumImportantColors);
+			
+			//Print compression method
+			printf("Compression method ............ ");
+			switch(BMPHeaderV2.Compression)
+			{
+				case 0 :
+					printf("none (ID code: BI_RGB)\n");
+					break;
+					
+				case 1 :
+					printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n");
+					break;
+					
+				case 2 :
+					printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n");
+					break;
+					
+				case 3 :
+					printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n");
+					break;
+					
+				case 4 :
+					printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n");
+					break;
+					
+				case 5 :
+					printf("Undefined (ID code: BI_PNG)\n");
+					break;
+					
+				case 6 :
+					printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n");
+					break;
+					
+				case 11 :
+					printf("none (ID code: BI_CMYK)\n");
+					break;
+					
+				case 12 :
+					printf("RLE-8 (ID code: BI_CMYKRLE8)\n");
+					break;
+					
+				case 13 :
+					printf("RLE-4 (ID code: BI_CMYKRLE4)\n");
+					break;
+					
+				default :
+					printf("Error! invalid value\n");
+			}
+			
+			printf("Red mask ...................... %u\n", BMPHeaderV2.RedMask);
+			printf("Green mask .................... %u\n", BMPHeaderV2.GreenMask);
+			printf("Blue mask ..................... %u\n\n", BMPHeaderV2.BlueMask);
+			
+			break;
 	
-		bmp_headerV2_t BMPHeaderV2;
-		
-		fread(&BMPHeaderV2, sizeof(bmp_headerV2_t), 1, File);
-		printf("BMP header type: BITMAPINFOHEADER (V1)\n");
-		printf("BMP header size ............... %u bytes\n", BMPHeaderV2.SizeHeader);
-		printf("Image width ................... %d pixels\n", BMPHeaderV2.Width);
-		printf("Image Height .................. %d pixels\n", BMPHeaderV2.Height);
-		printf("Number of color plnaes ........ %u\n", BMPHeaderV2.Planes);
-		printf("Bits per pixel ................ %u\n", BMPHeaderV2.ColorDepth);
-		printf("Image size .................... %u", BMPHeaderV2.SizePixelMatrix);
-		printf("X axis printing resolution .... %d", BMPHeaderV2.ResolutionX);
-		printf("Y axis printing resolution .... %d", BMPHeaderV2.ResolutionY);
-		printf("Number of palette colors ...... %u", BMPHeaderV2.NumColorsInTable);
-		printf("Number of important colors .... %u", BMPHeaderV2.NumImportantColors);
-		
-		//Print compression method
-		printf("Compression method ............ ");
-		switch(BMPHeaderV2.Compression)
-		{
-			case 0 :
-				printf("none (ID code: BI_RGB)\n");
-				break;
-				
-			case 1 :
-				printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n");
-				break;
-				
-			case 2 :
-				printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n");
-				break;
-				
-			case 3 :
-				printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n");
-				break;
-				
-			case 4 :
-				printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n");
-				break;
-				
-			case 5 :
-				printf("Undefined (ID code: BI_PNG)\n");
-				break;
-				
-			case 6 :
-				printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n");
-				break;
-				
-			case 11 :
-				printf("none (ID code: BI_CMYK)\n");
-				break;
-				
-			case 12 :
-				printf("RLE-8 (ID code: BI_CMYKRLE8)");
-				break;
-				
-			case 13 :
-				printf("RLE-4 (ID code: BI_CMYKRLE4)");
-				break;
-				
-			default :
-				printf("Error! invalid value");
-		}
-		
-		printf("Red mask ...................... %u", BMPHeaderV2.RedMask);
-		printf("Green mask .................... %u", BMPHeaderV2.GreenMask);
-		printf("Blue mask ..................... %u", BMPHeaderV2.BlueMask);
+		//----------------------------------------------------------------------
+		case BITMAP_V3_INFOHEADER :
+			
+			fread(&BMPHeaderV3, sizeof(bmp_headerV3_t), 1, File);
+			printf("BMP header type: BITMAPV3INFOHEADER (V3)\n");
+			printf("BMP header size ............... %u bytes\n", BMPHeaderV3.SizeHeader);
+			printf("Image width ................... %d pixels\n", BMPHeaderV3.Width);
+			printf("Image Height .................. %d pixels\n", BMPHeaderV3.Height);
+			printf("Number of color plnaes ........ %u\n", BMPHeaderV3.Planes);
+			printf("Bits per pixel ................ %u\n", BMPHeaderV3.ColorDepth);
+			printf("Image size .................... %u\n", BMPHeaderV3.SizePixelMatrix);
+			printf("X axis printing resolution .... %d\n", BMPHeaderV3.ResolutionX);
+			printf("Y axis printing resolution .... %d\n", BMPHeaderV3.ResolutionY);
+			printf("Number of palette colors ...... %u\n", BMPHeaderV3.NumColorsInTable);
+			printf("Number of important colors .... %u\n", BMPHeaderV3.NumImportantColors);
+			
+			//Print compression method
+			printf("Compression method ............ ");
+			switch(BMPHeaderV3.Compression)
+			{
+				case 0 :
+					printf("none (ID code: BI_RGB)\n");
+					break;
+					
+				case 1 :
+					printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n");
+					break;
+					
+				case 2 :
+					printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n");
+					break;
+					
+				case 3 :
+					printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n");
+					break;
+					
+				case 4 :
+					printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n");
+					break;
+					
+				case 5 :
+					printf("Undefined (ID code: BI_PNG)\n");
+					break;
+					
+				case 6 :
+					printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n");
+					break;
+					
+				case 11 :
+					printf("none (ID code: BI_CMYK)\n");
+					break;
+					
+				case 12 :
+					printf("RLE-8 (ID code: BI_CMYKRLE8)\n");
+					break;
+					
+				case 13 :
+					printf("RLE-4 (ID code: BI_CMYKRLE4)\n");
+					break;
+					
+				default :
+					printf("Error! invalid value\n");
+			}
+			
+			printf("Red mask ...................... %u\n", BMPHeaderV3.RedMask);
+			printf("Green mask .................... %u\n", BMPHeaderV3.GreenMask);
+			printf("Blue mask ..................... %u\n", BMPHeaderV3.BlueMask);
+			
+			printf("Alpha mask .................... %u\n\n", BMPHeaderV3.AlphaMask);
+
+			break;
 	
-	}else if((FileHeader.OffsetPixelMatrix - sizeof(file_header_t)) == BITMAP_V3_INFOHEADER)
-	{
-	
-		bmp_headerV3_t BMPHeaderV3;
+		//----------------------------------------------------------------------
+		case BITMAP_V4_INFOHEADER :
+
+			fread(&BMPHeaderV4, sizeof(bmp_headerV4_t), 1, File);
+			printf("BMP header type: BITMAPV4HEADER (V4)\n");
+			printf("BMP header size ............... %u bytes\n", BMPHeaderV4.SizeHeader);
+			printf("Image width ................... %d pixels\n", BMPHeaderV4.Width);
+			printf("Image Height .................. %d pixels\n", BMPHeaderV4.Height);
+			printf("Number of color plnaes ........ %u\n", BMPHeaderV4.Planes);
+			printf("Bits per pixel ................ %u\n", BMPHeaderV4.ColorDepth);
+			printf("Image size .................... %u\n", BMPHeaderV4.SizePixelMatrix);
+			printf("X axis printing resolution .... %d\n", BMPHeaderV4.ResolutionX);
+			printf("Y axis printing resolution .... %d\n", BMPHeaderV4.ResolutionY);
+			printf("Number of palette colors ...... %u\n", BMPHeaderV4.NumColorsInTable);
+			printf("Number of important colors .... %u\n", BMPHeaderV4.NumImportantColors);
+			
+			//Print compression method
+			printf("Compression method ............ ");
+			switch(BMPHeaderV4.Compression)
+			{
+				case 0 :
+					printf("none (ID code: BI_RGB)\n");
+					break;
+					
+				case 1 :
+					printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n");
+					break;
+					
+				case 2 :
+					printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n");
+					break;
+					
+				case 3 :
+					printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n");
+					break;
+					
+				case 4 :
+					printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n");
+					break;
+					
+				case 5 :
+					printf("Undefined (ID code: BI_PNG)\n");
+					break;
+					
+				case 6 :
+					printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n");
+					break;
+					
+				case 11 :
+					printf("none (ID code: BI_CMYK)\n");
+					break;
+					
+				case 12 :
+					printf("RLE-8 (ID code: BI_CMYKRLE8)\n");
+					break;
+					
+				case 13 :
+					printf("RLE-4 (ID code: BI_CMYKRLE4)\n");
+					break;
+					
+				default :
+					printf("Error! invalid value\n");
+			}
+			
+			printf("Red mask ...................... %u\n", BMPHeaderV4.RedMask);
+			printf("Green mask .................... %u\n", BMPHeaderV4.GreenMask);
+			printf("Blue mask ..................... %u\n", BMPHeaderV4.BlueMask);
+			
+			printf("Alpha mask .................... %u\n", BMPHeaderV4.AlphaMask);
+
+			printf("Color space ................... ");
+			switch(BMPHeaderV4.CSType)
+			{
+				case 0x0:
+					printf("LCS_CALIBRATED_RGB\n");
+					break;
+				
+				case 0x73524742 : //"sRGB"
+					printf("LCS_sRGB\n");
+					break;
+				
+				case 0x57696E20 :
+					printf("LCS_WINDOWS_COLOR_SPACE\n");
+					break;
+				
+				default :
+					printf("PROFILE_LINKED or PROFILE_EMBEDDED\n");
+			}
+			printf("X red endpoint ................ %d\n", BMPHeaderV4.RedX);
+			printf("Y red endpoint ................ %d\n", BMPHeaderV4.RedY);
+			printf("Z red endpoint ................ %d\n", BMPHeaderV4.RedZ);
+			printf("X green endpoint .............. %d\n", BMPHeaderV4.GreenX);
+			printf("Y green endpoint .............. %d\n", BMPHeaderV4.GreenY);
+			printf("Z green endpoint .............. %d\n", BMPHeaderV4.GreenZ);
+			printf("X Blue endpoint ............... %d\n", BMPHeaderV4.BlueX);
+			printf("Y Blue endpoint ............... %d\n", BMPHeaderV4.BlueY);
+			printf("Z Blue endpoint ............... %d\n", BMPHeaderV4.BlueZ);
+			printf("Toned response for red ........ %X\n", BMPHeaderV4.GammaRed);
+			printf("Toned response for green ...... %X\n", BMPHeaderV4.GammaGreen);
+			printf("Toned response for blue ....... %X\n\n", BMPHeaderV4.GammaBlue);
+
+			break;
+
+		//----------------------------------------------------------------------
+		case BITMAP_V5_INFOHEADER :
+
+			fread(&BMPHeaderV5, sizeof(bmp_headerV4_t), 1, File);
+			printf("BMP header type: BITMAPV5HEADER (V5)\n");
+			printf("BMP header size ............... %u bytes\n", BMPHeaderV5.SizeHeader);
+			printf("Image width ................... %d pixels\n", BMPHeaderV5.Width);
+			printf("Image Height .................. %d pixels\n", BMPHeaderV5.Height);
+			printf("Number of color plnaes ........ %u\n", BMPHeaderV5.Planes);
+			printf("Bits per pixel ................ %u\n", BMPHeaderV5.ColorDepth);
+			printf("Image size .................... %u\n", BMPHeaderV5.SizePixelMatrix);
+			printf("X axis printing resolution .... %d\n", BMPHeaderV5.ResolutionX);
+			printf("Y axis printing resolution .... %d\n", BMPHeaderV5.ResolutionY);
+			printf("Number of palette colors ...... %u\n", BMPHeaderV5.NumColorsInTable);
+			printf("Number of important colors .... %u\n", BMPHeaderV5.NumImportantColors);
+			
+			//Print compression method
+			printf("Compression method ............ ");
+			switch(BMPHeaderV5.Compression)
+			{
+				case 0 :
+					printf("none (ID code: BI_RGB)\n");
+					break;
+					
+				case 1 :
+					printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n");
+					break;
+					
+				case 2 :
+					printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n");
+					break;
+					
+				case 3 :
+					printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n");
+					break;
+					
+				case 4 :
+					printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n");
+					break;
+					
+				case 5 :
+					printf("Undefined (ID code: BI_PNG)\n");
+					break;
+					
+				case 6 :
+					printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n");
+					break;
+					
+				case 11 :
+					printf("none (ID code: BI_CMYK)\n");
+					break;
+					
+				case 12 :
+					printf("RLE-8 (ID code: BI_CMYKRLE8)\n");
+					break;
+					
+				case 13 :
+					printf("RLE-4 (ID code: BI_CMYKRLE4)\n");
+					break;
+					
+				default :
+					printf("Error! invalid value\n");
+			}
+			
+			printf("Red mask ...................... %u\n", BMPHeaderV5.RedMask);
+			printf("Green mask .................... %u\n", BMPHeaderV5.GreenMask);
+			printf("Blue mask ..................... %u\n", BMPHeaderV5.BlueMask);
+			
+			printf("Alpha mask .................... %u\n", BMPHeaderV5.AlphaMask);
+
+			printf("Color space ................... ");
+			switch(BMPHeaderV5.CSType)
+			{
+				case 0x0:
+					printf("LCS_CALIBRATED_RGB\n");
+					break;
+				
+				case 0x73524742 : //"sRGB"
+					printf("LCS_sRGB\n");
+					break;
+				
+				case 0x57696E20 :
+					printf("LCS_WINDOWS_COLOR_SPACE\n");
+					break;
+				
+				default :
+					printf("PROFILE_LINKED or PROFILE_EMBEDDED\n");
+			}
+			printf("X red endpoint ................ %d\n", BMPHeaderV5.RedX);
+			printf("Y red endpoint ................ %d\n", BMPHeaderV5.RedY);
+			printf("Z red endpoint ................ %d\n", BMPHeaderV5.RedZ);
+			printf("X green endpoint .............. %d\n", BMPHeaderV5.GreenX);
+			printf("Y green endpoint .............. %d\n", BMPHeaderV5.GreenY);
+			printf("Z green endpoint .............. %d\n", BMPHeaderV5.GreenZ);
+			printf("X Blue endpoint ............... %d\n", BMPHeaderV5.BlueX);
+			printf("Y Blue endpoint ............... %d\n", BMPHeaderV5.BlueY);
+			printf("Z Blue endpoint ............... %d\n", BMPHeaderV5.BlueZ);
+			printf("Toned response for red ........ %X\n", BMPHeaderV5.GammaRed);
+			printf("Toned response for green ...... %X\n", BMPHeaderV5.GammaGreen);
+			printf("Toned response for blue ....... %X\n", BMPHeaderV5.GammaBlue);
+
+			printf("Rendering intent .............. ");
+			switch(BMPHeaderV5.Intent)
+			{
+				case 0x8 :
+					printf("LCS_GM_ABS_COLORIMETRIC\n");
+					break;
+				
+				case 0x1 :
+					printf("LCS_GM_BUSINESS\n");
+					break;
+					
+				case 0x2 :
+					printf("LCS_GM_GRAPHICS\n");
+					break;
+					
+				case 0x4 :
+					printf("LCS_GM_IMAGES\n");
+					break;
+					
+				default :
+					printf("Error: invalid value\n");
+			}			
+			printf("Profile data .................. %u\n", BMPHeaderV5.ProfileData);
+			printf("Profile size .................. %u\n", BMPHeaderV5.ProfileSize);
+			printf("Reserved ...................... %u\n\n", BMPHeaderV5.Reserved);
+
+			break;
+
+		//----------------------------------------------------------------------
+		default :
 		
-		fread(&BMPHeaderV3, sizeof(bmp_headerV2_t), 1, File);
-		printf("BMP header type: BITMAPINFOHEADER (V1)\n");
-		printf("BMP header size ............... %u bytes\n", BMPHeaderV3.SizeHeader);
-		printf("Image width ................... %d pixels\n", BMPHeaderV3.Width);
-		printf("Image Height .................. %d pixels\n", BMPHeaderV3.Height);
-		printf("Number of color plnaes ........ %u\n", BMPHeaderV3.Planes);
-		printf("Bits per pixel ................ %u\n", BMPHeaderV3.ColorDepth);
-		printf("Image size .................... %u", BMPHeaderV3.SizePixelMatrix);
-		printf("X axis printing resolution .... %d", BMPHeaderV3.ResolutionX);
-		printf("Y axis printing resolution .... %d", BMPHeaderV3.ResolutionY);
-		printf("Number of palette colors ...... %u", BMPHeaderV3.NumColorsInTable);
-		printf("Number of important colors .... %u", BMPHeaderV3.NumImportantColors);
-		
-		//Print compression method
-		printf("Compression method ............ ");
-		switch(BMPHeaderV3.Compression)
-		{
-			case 0 :
-				printf("none (ID code: BI_RGB)\n");
-				break;
-				
-			case 1 :
-				printf("RLE 8-bit/pixel (ID code: BI_RLE8)\n");
-				break;
-				
-			case 2 :
-				printf("RLE 4-bit/pixel (ID code: BI_RLE4)\n");
-				break;
-				
-			case 3 :
-				printf("OS22XBITMAPHEADER: Huffman 1D (ID code: BI_BITFIELDS)\n");
-				break;
-				
-			case 4 :
-				printf("OS22XBITMAPHEADER: RLE-24 (ID code: BI_JPEG)\n");
-				break;
-				
-			case 5 :
-				printf("Undefined (ID code: BI_PNG)\n");
-				break;
-				
-			case 6 :
-				printf("RGBA bit field masks (ID code: BI_ALPHABITFIELDS)\n");
-				break;
-				
-			case 11 :
-				printf("none (ID code: BI_CMYK)\n");
-				break;
-				
-			case 12 :
-				printf("RLE-8 (ID code: BI_CMYKRLE8)");
-				break;
-				
-			case 13 :
-				printf("RLE-4 (ID code: BI_CMYKRLE4)");
-				break;
-				
-			default :
-				printf("Error! invalid value");
-		}
-		
-		printf("Red mask ...................... %u", BMPHeaderV3.RedMask);
-		printf("Green mask .................... %u", BMPHeaderV3.GreenMask);
-		printf("Blue mask ..................... %u", BMPHeaderV3.BlueMask);
-		
-		printf("Alpha mask .................... %u", BMPHeaderV3.AlphaMask);
-	
-	}else if((FileHeader.OffsetPixelMatrix - sizeof(file_header_t)) == BITMAP_V4_INFOHEADER)
-	{
-	
-		bmp_headerV4_t BMPHeaderV4;
-		
-		//continue
-	
-	}else if((FileHeader.OffsetPixelMatrix - sizeof(file_header_t)) == BITMAP_V5_INFOHEADER)
-	{
-	
-		bmp_headerV5_t BMPHeaderV5;
-		
-		//continue
-	
-	}else
-	{
 		printf("Error: wrong size of BMP header");
 		exit(EXIT_FAILURE);
+
 	}
-	
+
 	fclose(File);
-	
+
 }
 
 
