@@ -8,6 +8,13 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
+
+/*******************************************************************************
+ *                            MACROS AND TYPEDEF                               *
+ *******************************************************************************/
+ 
+//========================================= IMAGE FILE MANIPULATION ============
+
 //Sizes of bitmap headers in bytes
 #define BITMAP_V1_INFOHEADER	40
 #define BITMAP_V2_INFOHEADER	52
@@ -19,22 +26,34 @@
 #define RESOLUTION_X	2834
 #define RESOLUTION_Y	2834
 
-//RGB to grayscale conversion method selection
+
+//========================================= FILTERS AND KERNEL CONVOLUTIONS ====
+
+//Conversion method selection for "RGB_to_grayscale" function
 #define GRAY_AVERAGE				1
 #define GRAY_LUMI_PERCEP			2
 #define GRAY_APROX_GAM_LUMI_PERCEP	3
 
-/********************************************************************************
- * bmp_headerV1_t ==> BITMAPINFOHEADER		(40 bytes)							*
- * bmp_headerV2_t ==> BITMAPV2INFOHEADER	(52 bytes)							*
- * bmp_headerV3_t ==> BITMAPV3INFOHEADER	(56 bytes)							*
- * bmp_headerV4_t ==> BITMAPV4HEADER		(108 bytes)							*
- * bmp_headerV5_t ==> BITMAPV5HEADER		(124 bytes)							*
- ********************************************************************************/
+//Channel pass selection for "channel_pass_filter" function
+#define PASS_RED_CHANNEL			4
+#define PASS_GREEN_CHANNEL			5
+#define PASS_BLUE_CHANNEL			6
+
+
+
+//bmp_headerV1_t ==> BITMAPINFOHEADER	(40 bytes)
 typedef struct bmp_headerV1			bmp_headerV1_t;
+
+//bmp_headerV2_t ==> BITMAPV2INFOHEADER	(52 bytes)
 typedef struct bmp_headerV2			bmp_headerV2_t;
+
+//bmp_headerV3_t ==> BITMAPV3INFOHEADER	(56 bytes)
 typedef struct bmp_headerV3			bmp_headerV3_t;
+
+//bmp_headerV4_t ==> BITMAPV4HEADER		(108 bytes)
 typedef struct bmp_headerV4			bmp_headerV4_t;
+
+//bmp_headerV5_t ==> BITMAPV5HEADER		(124 bytes)
 typedef struct bmp_headerV5			bmp_headerV5_t;
 
 typedef struct file_header			file_header_t; //(14 bytes)
@@ -47,6 +66,8 @@ typedef struct dimensions			dimensions_t;
  *******************************************************************************/
 
 //========================================= IMAGE FILE MANIPULATION ============
+
+//------------------------------------------------------------------------------
 //create image file (return header structure)
 void create_BMP(int Width,
 				int Heigth,
@@ -64,7 +85,10 @@ dimensions_t dimensions_BMP(const char *Filename);
 //Display header information
 void display_header(const char *Filename);
 
+
 //========================================= GEOMETRY DRAWING ===================
+
+//------------------------------------------------------------------------------
 //Draw a circle on the pixel matrix
 void circle(dimensions_t Dimension,
 			pixel_t **PixelMatrix,
@@ -81,15 +105,21 @@ void circumference(dimensions_t Dimension,
 					int Radius,
 					pixel_t Color);
 
+
 //========================================= FILTERS AND KERNEL CONVOLUTIONS ====
+
+//------------------------------------------------------------------------------
 //Convert RGB to grayscale 
 ////Method = GRAY_AVERAGE               (channels average) 
 ////method = GRAY_LUMI_PERCEP           (channel-dependent luminance perception)  
 ////method = GRAY_APROX_GAM_LUMI_PERCEP (linear aproximation of gamma and luminance perception) 
 void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method);
-
-
-//Color pass filter
+//------------------------------------------------------------------------------
+//Channel pass filter
+////ChannelSelect = PASS_RED_CHANNEL
+////ChannelSelect = PASS_GREEN_CHANNEL
+////ChannelSelect = PASS_BLUE_CHANNEL
+void channel_pass_filter(dimensions_t Dimension, pixel_t **PixelMatrix, int ChannelSelect);
 
 
 /*******************************************************************************

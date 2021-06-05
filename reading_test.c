@@ -20,16 +20,16 @@ int main(int argc, char *argv[])
 	Dimension = dimensions_BMP(argv[1]);
 	
 	PixelMatrix = read_BMP(argv[1]);
-	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_AVERAGE);
-	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "gray_average.bmp");
+	channel_pass_filter(Dimension, PixelMatrix, PASS_RED_CHANNEL);
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "RED.bmp");
 	
 	PixelMatrix = read_BMP(argv[1]);
-	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_LUMI_PERCEP);
-	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "gray_lumi.bmp");
+	channel_pass_filter(Dimension, PixelMatrix, PASS_GREEN_CHANNEL);
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "GREEN.bmp");
 	
 	PixelMatrix = read_BMP(argv[1]);
-	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_APROX_GAM_LUMI_PERCEP);
-	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "gray_gamma_lumi.bmp");
+	channel_pass_filter(Dimension, PixelMatrix, PASS_BLUE_CHANNEL);
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "BLUE.bmp");
 	
 /*	char *OutFilename;
 	

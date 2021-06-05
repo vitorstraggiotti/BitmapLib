@@ -1002,7 +1002,7 @@ void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int CenterX, i
 } 
 
 /*******************************************************************************/
-//Convert RGB to grayscale 
+//Convert RGB to grayscale [OK]
 void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method)
 {
 ////(method: channels average) ==> GRAY_AVERAGE
@@ -1035,8 +1035,9 @@ void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method)
 			break;
 			
 		default :
-			printf("Error: invalid method input on RGB_to_grayscale function. Should be:\n");
+			printf("Error: invalid \"Method\" input on RGB_to_grayscale function. Should be:\n");
 			printf("       GRAY_AVERAGE, GRAY_LUMI_PERCEP or GRAY_APROX_GAM_LUMI_PERCEP\n\n");
+			exit(EXIT_FAILURE);
 	}
 	
 	for(int row = 0; row < Dimension.Height; row++)
@@ -1053,6 +1054,55 @@ void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method)
 	}
 }
 
+/*******************************************************************************/
+//Channel pass filter
+void channel_pass_filter(dimensions_t Dimension, pixel_t **PixelMatrix, int ChannelSelect)
+{
+////ChannelSelect = PASS_RED_CHANNEL
+////ChannelSelect = PASS_GREEN_CHANNEL
+////ChannelSelect = PASS_BLUE_CHANNEL
+
+	switch(ChannelSelect)
+	{
+		case PASS_RED_CHANNEL :
+			for(int row = 0; row < Dimension.Height; row++)
+			{
+				for(int column = 0; column < Dimension.Width; column++)
+				{
+					PixelMatrix[row][column].Green = 0;
+					PixelMatrix[row][column].Blue = 0;
+				}
+			}
+			break;
+			
+		case PASS_GREEN_CHANNEL :
+			for(int row = 0; row < Dimension.Height; row++)
+			{
+				for(int column = 0; column < Dimension.Width; column++)
+				{
+					PixelMatrix[row][column].Red = 0;
+					PixelMatrix[row][column].Blue = 0;
+				}
+			}
+			break;
+			
+		case PASS_BLUE_CHANNEL :
+			for(int row = 0; row < Dimension.Height; row++)
+			{
+				for(int column = 0; column < Dimension.Width; column++)
+				{
+					PixelMatrix[row][column].Red = 0;
+					PixelMatrix[row][column].Green = 0;
+				}
+			}
+			break;
+			
+		default :
+			printf("Error: invalid \"ChannelSelect\" input on channel_pass_filter function. Should be:\n");
+			printf("       PASS_RED_CHANNEL, PASS_GREEN_CHANNEL or PASS_BLUE_CHANNEL\n\n");
+			exit(EXIT_FAILURE);
+	}
+}
 
 
 
