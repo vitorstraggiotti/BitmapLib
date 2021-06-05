@@ -1,22 +1,19 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Source code for bitmap image creation                                       *
- * Image characteristics: 24 bit color depth, no color table, no compression   *
- *                                                                             *
- * Autor: Vitor Henrique Andrade Helfensteller Satraggiotti Silva              *
- * Iniciado em: 28/05/2020                                                     *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-//unsigned char = 1
-//unsigned short int  = 2
-//unsigned int = 4
-//unsigned long int = 8
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Source code for bitmap image creation										*
+ * Image creation characteristics:												*
+ * 24 bit color depth, no color table, no compression							*
+ *																				*
+ * Autor: Vitor Henrique Andrade Helfensteller Satraggiotti Silva				*
+ * Start date: 28/05/2021														*
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+ 
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include "bitmap.h"
 
 /********************************************************************************/
-//Create BMP image file (header used: BITMAPINFOHEADER)
-//REDO USING 2 DIFERENT HEADERS
+//Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
 void create_BMP(int Width,
 				int Height,
 				unsigned int ResolutionX,
@@ -74,7 +71,7 @@ void create_BMP(int Width,
 	//Finding total image file size
 	FileHeader.FileSize = 54 + BMPHeaderV1.SizePixelMatrix;
 
-	//creating image file
+	//Opening image file
 	FILE *ImageFile;
 	
 	ImageFile = fopen(Filename, "wb");
@@ -84,9 +81,11 @@ void create_BMP(int Width,
 		exit(EXIT_FAILURE);
 	}
 	
+	//Writing headers
 	fwrite(&FileHeader, sizeof(file_header_t), 1, ImageFile);
 	fwrite(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, ImageFile);
 	
+	//Writing image
 	for(int row = 0; row < Height; row++)
 	{
 		for(int column = 0; column < Width; column++)
@@ -113,9 +112,122 @@ void create_BMP(int Width,
 	
 	fclose(ImageFile);
 }
+
 /******************************************************************************/
-//Find dimensions of the BMP image
-//REDO CONSIDERING ALL BMP HEADER TYPES
+//Read BMP image to a pixel matrix [OK]
+pixel_t **read_BMP(const char *Filename)
+{
+	file_header_t	FileHeader;
+	bmp_headerV1_t	BMPHeaderV1;
+	bmp_headerV2_t	BMPHeaderV2;
+	bmp_headerV3_t	BMPHeaderV3;
+	bmp_headerV4_t	BMPHeaderV4;
+	bmp_headerV5_t	BMPHeaderV5;
+	pixel_t			**PixelMatrix;
+	unsigned char	Trash;
+	int				Width, Height;
+	FILE 			*Image;
+	
+	//open image
+	Image = fopen(Filename, "rb");
+	if(Image == NULL)
+	{
+		printf("Error: problem occured while readiing file for pixel matrix extraction\n\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	//Acquire file header and verify if valid
+	fread(&FileHeader, sizeof(file_header_t), 1, Image);
+	
+	if((FileHeader.CharID_1 != 0x42) || (FileHeader.CharID_2 != 0x4D))
+	{
+		printf("Error: input file is not a BMP image or have incompatible BMP file identifier. (should be: \"BM\")\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	//Finding out BMP header version and reading it
+	switch(FileHeader.OffsetPixelMatrix - sizeof(file_header_t))
+	{
+		case BITMAP_V1_INFOHEADER :
+			fread(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, Image);
+			Width = BMPHeaderV1.Width;
+			Height = BMPHeaderV1.Height;
+			break;
+			
+		case BITMAP_V2_INFOHEADER :
+			fread(&BMPHeaderV2, sizeof(bmp_headerV2_t), 1, Image);
+			Width = BMPHeaderV2.Width;
+			Height = BMPHeaderV2.Height;
+			break;
+		
+		case BITMAP_V3_INFOHEADER :
+			fread(&BMPHeaderV3, sizeof(bmp_headerV3_t), 1, Image);
+			Width = BMPHeaderV3.Width;
+			Height = BMPHeaderV3.Height;
+			break;
+		
+		case BITMAP_V4_INFOHEADER :
+			fread(&BMPHeaderV4, sizeof(bmp_headerV4_t), 1, Image);
+			Width = BMPHeaderV4.Width;
+			Height = BMPHeaderV4.Height;
+			break;
+			
+		case BITMAP_V5_INFOHEADER :
+			fread(&BMPHeaderV5, sizeof(bmp_headerV5_t), 1, Image);
+			Width = BMPHeaderV5.Width;
+			Height = BMPHeaderV5.Height;
+			break;
+			
+		default :
+			printf("Error: bitmap header is not supported. Suported bitmap headers for reading:\n");
+			printf("       - BITMAPIFOHEADER     (V1)\n");
+			printf("       - BITMAPV2INFOHEADER  (V2)\n");
+			printf("       - BITMAPV3INFOHEADER  (V3)\n");
+			printf("       - BITMAPV4HEADER      (V4)\n");
+			printf("       - BITMAPV5HEADER      (V5)\n");
+			exit(EXIT_FAILURE);
+	}
+	
+	//alocate space for pixel matrix
+	PixelMatrix = malloc(Height * sizeof(pixel_t*));
+	
+	for(int row = 0; row < Height; row++)
+	{
+		PixelMatrix[row] = malloc(Width * sizeof(pixel_t));
+	}
+
+	//Reading image and copying to pixel matrix
+	for(int row = 0; row < Height; row++)
+	{
+		for(int column = 0; column < Width; column++)
+		{
+			fread(&PixelMatrix[row][column], sizeof(pixel_t), 1, Image);
+			
+			if(column == (Width - 1))
+			{
+				if(((Width * 3) % 4) == 1)
+				{
+					fread(&Trash, sizeof(unsigned char), 3, Image);
+					
+				}else if(((Width * 3) % 4) == 2)
+				{
+					fread(&Trash, sizeof(unsigned char), 2, Image);
+					
+				}else if(((Width * 3) % 4) == 3)
+				{
+					fread(&Trash, sizeof(unsigned char), 1, Image);
+				}
+			}
+		}
+	}
+	
+	fclose(Image);
+	
+	return PixelMatrix;
+}
+
+/******************************************************************************/
+//Find dimensions of the BMP image [OK]
 dimensions_t dimensions_BMP(const char *Filename)
 {
 	file_header_t	FileHeader;
@@ -192,275 +304,8 @@ dimensions_t dimensions_BMP(const char *Filename)
 	return Dimension;
 
 }
+
 /******************************************************************************/
-#if 0
-//Read BMP image to a pixel matrix
-//REDO CONSIDERING ALL BMP HEADER TYPES
-pixel_t **read_BMP(const char *Filename)
-{
-	header_t FileHeader;
-	pixel_t **PixelMatrix;
-	unsigned char Trash;
-	FILE *Image;
-	
-	Image = fopen(Filename, "rb");
-	if(Image == NULL)
-	{
-		printf("Error: problem occured while readiing file for pixel matrix extraction\n\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	//read file header
-	fread(&FileHeader, sizeof(header_t), 1, Image);
-	
-	//alocate space for pixel matrix
-	PixelMatrix = malloc(FileHeader.Height * sizeof(pixel_t*));
-	
-	for(int row = 0; row < FileHeader.Height; row++)
-	{
-		PixelMatrix[row] = malloc(FileHeader.Width * sizeof(pixel_t));
-	}
-
-	for(int row = 0; row < FileHeader.Height; row++)
-	{
-		for(int column = 0; column < FileHeader.Width; column++)
-		{
-			fread(&PixelMatrix[row][column], sizeof(pixel_t), 1, Image);
-			
-			if(column == (FileHeader.Width - 1))
-			{
-				if(((FileHeader.Width * 3) % 4) == 1)
-				{
-					fread(&Trash, sizeof(unsigned char), 3, Image);
-				}else if(((FileHeader.Width * 3) % 4) == 2){
-					fread(&Trash, sizeof(unsigned char), 2, Image);
-				}else if(((FileHeader.Width * 3) % 4) == 3){
-					fread(&Trash, sizeof(unsigned char), 1, Image);
-				}
-			}
-		}
-	}
-	
-	fclose(Image);
-	
-	return PixelMatrix;
-}
-/******************************************************************************/
-//Draw a circle on the pixel matrix
-//CHANGE COORDINATE SYSTEM
-void circle(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
-{
-	int RowMin, RowMax, ColumnMin, ColumnMax;
-	int CircumferenceX, CircumferenceY, StepX, StepY;
-	int PreviousStepY;
-	
-	//Verifying coordinates boundaries
-	if((Pos_x < 0) || (Pos_x > Dimension.Width))
-	{
-		printf("Error: circumference X coordinate are out of the screen. Drawing terminated\n\n");
-		exit(EXIT_FAILURE);
-	}else if((Pos_y < 0) || (Pos_y > Dimension.Height))
-	{
-		printf("Error: circumference Y coordinate are out of the screen. Drawing terminated\n\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	
-	//Drawing circumference
-	for(StepX = 0; StepX <= Radius; StepX++)
-	{
-		StepY = (int)((float)Radius * sqrt(1.0 - pow((float)StepX/(float)Radius, 2)));
-		
-		//1° quadrant (4°)
-		CircumferenceX = Pos_x + StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) + StepY;
-		for(int tmp = CircumferenceY; tmp >= (CircumferenceY - StepY); tmp--)
-		{
-			if((CircumferenceX < Dimension.Width) && (tmp < Dimension.Height))
-			{
-				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
-				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
-				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
-			}
-		}
-		
-		//4° quadrant (1°)
-		CircumferenceX = Pos_x + StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) - StepY;
-		for(int tmp = CircumferenceY; tmp <= (CircumferenceY + StepY); tmp++)
-		{
-			if((CircumferenceX < Dimension.Width) && (tmp >= 0))
-			{
-				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
-				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
-				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
-			}
-		}
-		
-		//3° quadrant (2°)
-		CircumferenceX = Pos_x - StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) + StepY;
-		for(int tmp = CircumferenceY; tmp >= (CircumferenceY - StepY); tmp--)
-		{
-			if((CircumferenceX >= 0) && (tmp < Dimension.Height))
-			{
-				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
-				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
-				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
-			}
-		}
-		
-		//2° quadrant (3°)
-		CircumferenceX = Pos_x - StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) - StepY;
-		for(int tmp = CircumferenceY; tmp <= (CircumferenceY + StepY); tmp++)
-		{
-			if((CircumferenceX >= 0) && (tmp >= 0))
-			{
-				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
-				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
-				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
-			}
-		}
-				
-	}
-
-}
-/******************************************************************************/
-//Draw a circumference on the pixel matrix
-//CHANGE COORDINATE SYSTEM
-void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int Pos_x, int Pos_y, int Radius, pixel_t Color)
-{
-	int RowMin, RowMax, ColumnMin, ColumnMax;
-	int CircumferenceX, CircumferenceY, StepX, StepY;
-	int PreviousStepY;
-	
-	//Verifying coordinates boundaries
-	if((Pos_x < 0) || (Pos_x > Dimension.Width))
-	{
-		printf("Error: circumference X coordinate are out of the screen. Drawing terminated\n\n");
-		exit(EXIT_FAILURE);
-	}else if((Pos_y < 0) || (Pos_y > Dimension.Height))
-	{
-		printf("Error: circumference Y coordinate are out of the screen. Drawing terminated\n\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	
-	//Drawing circumference
-	for(StepX = 0; StepX <= Radius; StepX++)
-	{
-		StepY = (int)((float)Radius * sqrt(1.0 - pow((float)StepX/(float)Radius, 2)));
-		
-		//1° quadrant (4°)
-		CircumferenceX = Pos_x + StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) + StepY;
-		if((CircumferenceX < Dimension.Width) && (CircumferenceY < Dimension.Height))
-		{
-			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
-			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
-			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
-			
-			//Filing absent pixels
-			if(StepX > 0)
-			{
-				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
-				for(int tmp = (PreviousStepY - StepY); tmp > 0; tmp--)
-				{
-					if((CircumferenceY + tmp) < Dimension.Height)
-					{
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
-					}
-				}
-			}
-
-		}
-		
-		//2° quadrant (3°)
-		CircumferenceX = Pos_x - StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) + StepY;
-		if((CircumferenceX >= 0) && (CircumferenceY < Dimension.Height))
-		{
-			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
-			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
-			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
-			
-			//Filing absent pixels
-			if(StepX > 0)
-			{
-				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
-				for(int tmp = (PreviousStepY - StepY); tmp > 0; tmp--)
-				{
-					if((CircumferenceY + tmp) < Dimension.Height)
-					{
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
-					}
-				}
-			}
-
-		}
-		
-		//3° quadrant (2°)
-		CircumferenceX = Pos_x - StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) - StepY;
-		if((CircumferenceX >= 0) && (CircumferenceY >= 0))
-		{
-			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
-			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
-			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
-			
-			//Filing absent pixels
-			if(StepX > 0)
-			{
-				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
-				for(int tmp = (StepY - PreviousStepY); tmp < 0; tmp++)
-				{
-					if((CircumferenceY + tmp) >= 0)
-					{
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
-					}
-				}
-			}
-
-		}
-		
-		//4° quadrant (1°)
-		CircumferenceX = Pos_x + StepX;
-		CircumferenceY = (Dimension.Height - Pos_y) - StepY;
-		if((CircumferenceX < Dimension.Width) && (CircumferenceY >= 0))
-		{
-			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
-			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
-			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
-			
-			//Filing absent pixels
-			if(StepX > 0)
-			{
-				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
-				for(int tmp = (StepY - PreviousStepY); tmp < 0; tmp++)
-				{
-					if((CircumferenceY + tmp) >= 0)
-					{
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
-						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
-					}
-				}
-			}
-
-		}
-		
-	}
-
-} 
-/******************************************************************************/
-#endif
 //Display header information [OK]
 void display_header(const char *Filename)
 {		
@@ -942,6 +787,270 @@ void display_header(const char *Filename)
 
 	fclose(File);
 
+}
+
+/******************************************************************************/
+//Draw a circle on the pixel matrix [OK]
+void circle(dimensions_t Dimension, pixel_t **PixelMatrix, int CenterX, int CenterY, int Radius, pixel_t Color)
+{
+	int CircumferenceX, CircumferenceY, StepX, StepY;
+	
+	//Verifying coordinates boundaries
+	if((CenterX < 0) || (CenterX >= Dimension.Width))
+	{
+		printf("Error: circle center X coordinate are out of the screen. Drawing terminated\n\n");
+		exit(EXIT_FAILURE);
+	}else if((CenterY < 0) || (CenterY >= Dimension.Height))
+	{
+		printf("Error: circle center Y coordinate are out of the screen. Drawing terminated\n\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	
+	//Drawing circumference
+	for(StepX = 0; StepX <= Radius; StepX++)
+	{
+		StepY = (int)((float)Radius * sqrt(1.0 - pow((float)StepX/(float)Radius, 2)));
+		
+		//1° quadrant
+		CircumferenceX = CenterX + StepX;
+		CircumferenceY = CenterY + StepY;
+		for(int tmp = CircumferenceY; tmp >= CenterY; tmp--)
+		{
+			if((CircumferenceX < Dimension.Width) && (tmp < Dimension.Height))
+			{
+				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
+				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
+				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
+			}
+		}
+		
+		//2° quadrant
+		CircumferenceX = CenterX - StepX;
+		CircumferenceY = CenterY + StepY;
+		for(int tmp = CircumferenceY; tmp >= CenterY; tmp--)
+		{
+			if((CircumferenceX >= 0) && (tmp < Dimension.Height))
+			{
+				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
+				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
+				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
+			}
+		}
+		
+		//3° quadrant
+		CircumferenceX = CenterX - StepX;
+		CircumferenceY = CenterY - StepY;
+		for(int tmp = CircumferenceY; tmp <= CenterY; tmp++)
+		{
+			if((CircumferenceX >= 0) && (tmp >= 0))
+			{
+				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
+				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
+				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
+			}
+		}
+
+		//4° quadrant
+		CircumferenceX = CenterX + StepX;
+		CircumferenceY = CenterY - StepY;
+		for(int tmp = CircumferenceY; tmp <= CenterY; tmp++)
+		{
+			if((CircumferenceX < Dimension.Width) && (tmp >= 0))
+			{
+				PixelMatrix[tmp][CircumferenceX].Red = Color.Red;
+				PixelMatrix[tmp][CircumferenceX].Green = Color.Green;
+				PixelMatrix[tmp][CircumferenceX].Blue = Color.Blue;
+			}
+		}
+		
+	}
+
+}
+
+/******************************************************************************/
+//Draw a circumference on the pixel matrix [OK]
+void circumference(dimensions_t Dimension, pixel_t **PixelMatrix, int CenterX, int CenterY, int Radius, pixel_t Color)
+{
+	int RowMin, RowMax, ColumnMin, ColumnMax;
+	int CircumferenceX, CircumferenceY, StepX, StepY;
+	int PreviousStepY;
+	
+	//Verifying coordinates boundaries
+	if((CenterX < 0) || (CenterX >= Dimension.Width))
+	{
+		printf("Error: circumference center X coordinate are out of the screen. Drawing terminated\n\n");
+		exit(EXIT_FAILURE);
+	}else if((CenterY < 0) || (CenterY >= Dimension.Height))
+	{
+		printf("Error: circumference center Y coordinate are out of the screen. Drawing terminated\n\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	
+	//Drawing circumference
+	for(StepX = 0; StepX <= Radius; StepX++)
+	{
+		StepY = (int)((float)Radius * sqrt(1.0 - pow((float)StepX/(float)Radius, 2)));
+		
+		//1° quadrant
+		CircumferenceX = CenterX + StepX;
+		CircumferenceY = CenterY + StepY;
+		if((CircumferenceX < Dimension.Width) && (CircumferenceY < Dimension.Height))
+		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
+			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (PreviousStepY - StepY); tmp > 0; tmp--)
+				{
+					if((CircumferenceY + tmp) < Dimension.Height)
+					{
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+					}
+				}
+			}
+
+		}
+		
+		//2° quadrant
+		CircumferenceX = CenterX - StepX;
+		CircumferenceY = CenterY + StepY;
+		if((CircumferenceX >= 0) && (CircumferenceY < Dimension.Height))
+		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
+			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (PreviousStepY - StepY); tmp > 0; tmp--)
+				{
+					if((CircumferenceY + tmp) < Dimension.Height)
+					{
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+					}
+				}
+			}
+
+		}
+		
+		//3° quadrant
+		CircumferenceX = CenterX - StepX;
+		CircumferenceY = CenterY - StepY;
+		if((CircumferenceX >= 0) && (CircumferenceY >= 0))
+		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
+			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (StepY - PreviousStepY); tmp < 0; tmp++)
+				{
+					if((CircumferenceY + tmp) >= 0)
+					{
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+					}
+				}
+			}
+
+		}
+		
+		//4° quadrant
+		CircumferenceX = CenterX + StepX;
+		CircumferenceY = CenterY - StepY;
+		if((CircumferenceX < Dimension.Width) && (CircumferenceY >= 0))
+		{
+			PixelMatrix[CircumferenceY][CircumferenceX].Red = Color.Red;
+			PixelMatrix[CircumferenceY][CircumferenceX].Green = Color.Green;
+			PixelMatrix[CircumferenceY][CircumferenceX].Blue = Color.Blue;
+			
+			//Filing absent pixels
+			if(StepX > 0)
+			{
+				PreviousStepY = (int)((float)Radius * sqrt(1.0 - pow((float)(StepX - 1)/(float)Radius, 2)));
+				for(int tmp = (StepY - PreviousStepY); tmp < 0; tmp++)
+				{
+					if((CircumferenceY + tmp) >= 0)
+					{
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Red = Color.Red;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Green = Color.Green;
+						PixelMatrix[CircumferenceY + tmp][CircumferenceX].Blue = Color.Blue;
+					}
+				}
+			}
+
+		}
+		
+	}
+
+} 
+
+/*******************************************************************************/
+//Convert RGB to grayscale 
+void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method)
+{
+////(method: channels average) ==> GRAY_AVERAGE
+////Pixel = (Red + Green + Blue)/3
+////(method: channel-dependent luminance perception) ==> GRAY_LUMI_PERCEP
+////Pixel = (0.2126Red + 0.7152Green + 0.0722Blue)/1
+////(method: linear aproximation of gamma and luminance perception) ==> GRAY_APROX_GAM_LUMI_PERCEP
+////Pixel = (0.299Red + 0.587Green + 0.114Blue)/1
+
+	int RedWeight, GreenWeight, BlueWeight;
+	
+	switch(Method)
+	{
+		case GRAY_AVERAGE :
+			RedWeight = 3333;
+			GreenWeight = 3334;
+			BlueWeight = 3333;
+			break;
+			
+		case GRAY_LUMI_PERCEP :
+			RedWeight = 2126;
+			GreenWeight = 7152;
+			BlueWeight = 722;
+			break;
+			
+		case GRAY_APROX_GAM_LUMI_PERCEP :
+			RedWeight = 2990;
+			GreenWeight = 5870;
+			BlueWeight = 1140;
+			break;
+			
+		default :
+			printf("Error: invalid method input on RGB_to_grayscale function. Should be:\n");
+			printf("       GRAY_AVERAGE, GRAY_LUMI_PERCEP or GRAY_APROX_GAM_LUMI_PERCEP\n\n");
+	}
+	
+	for(int row = 0; row < Dimension.Height; row++)
+	{
+		for(int column = 0; column < Dimension.Width; column++)
+		{
+			PixelMatrix[row][column].Red = ((PixelMatrix[row][column].Red * RedWeight) 
+			                               + (PixelMatrix[row][column].Green * GreenWeight)
+			                               + (PixelMatrix[row][column].Blue * BlueWeight))/10000;
+
+			PixelMatrix[row][column].Green = PixelMatrix[row][column].Red;
+			PixelMatrix[row][column].Blue = PixelMatrix[row][column].Red;
+		}
+	}
 }
 
 

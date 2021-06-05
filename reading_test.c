@@ -18,77 +18,19 @@ int main(int argc, char *argv[])
 	pixel_t Color;
 	
 	Dimension = dimensions_BMP(argv[1]);
-	printf("Width = %d // Height = %d", Dimension.Width, Dimension.Height);
-/*	PixelMatrix = read_BMP(argv[1]);
 	
-	for(int row = 0; row < Dimension.Height; row++)
-	{
-		for(int column = 0; column < Dimension.Width; column++)
-		{
-			if((column == Dimension.Width/2) || (row == Dimension.Height/2))
-			{
-				PixelMatrix[row][column].Red = 255;
-				PixelMatrix[row][column].Green = 0;
-				PixelMatrix[row][column].Blue = 0;
-			}
-		}
-	}
-*/	
-	//print file header information
-	display_header(argv[1]);
+	PixelMatrix = read_BMP(argv[1]);
+	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_AVERAGE);
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "gray_average.bmp");
 	
-/*	Color.Red = 0;
-	Color.Green = 0;
-	Color.Blue = 255;
-	circle(Dimension, PixelMatrix, Dimension.Width/2, Dimension.Height/2, 300, Color);
+	PixelMatrix = read_BMP(argv[1]);
+	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_LUMI_PERCEP);
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "gray_lumi.bmp");
 	
-	Color.Red = 0;
-	Color.Green = 255;
-	Color.Blue = 0;
-	circumference(Dimension, PixelMatrix, Dimension.Width/2, Dimension.Height/2, 310, Color);
+	PixelMatrix = read_BMP(argv[1]);
+	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_APROX_GAM_LUMI_PERCEP);
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "gray_gamma_lumi.bmp");
 	
-		Color.Red = 0;
-	Color.Green = 0;
-	Color.Blue = 255;
-	circle(Dimension, PixelMatrix, 100, 100, 300, Color);
-	
-	Color.Red = 0;
-	Color.Green = 255;
-	Color.Blue = 0;
-	circumference(Dimension, PixelMatrix, 100, 100, 310, Color);
-	
-		Color.Red = 0;
-	Color.Green = 0;
-	Color.Blue = 255;
-	circle(Dimension, PixelMatrix, Dimension.Width - 100, 100, 300, Color);
-	
-	Color.Red = 0;
-	Color.Green = 255;
-	Color.Blue = 0;
-	circumference(Dimension, PixelMatrix, Dimension.Width - 100, 100, 310, Color);
-	
-		Color.Red = 0;
-	Color.Green = 0;
-	Color.Blue = 255;
-	circle(Dimension, PixelMatrix, 100, Dimension.Height - 100, 300, Color);
-	
-	Color.Red = 0;
-	Color.Green = 255;
-	Color.Blue = 0;
-	circumference(Dimension, PixelMatrix, 100, Dimension.Height - 100, 310, Color);
-	
-		Color.Red = 0;
-	Color.Green = 0;
-	Color.Blue = 255;
-	circle(Dimension, PixelMatrix, Dimension.Width - 100, Dimension.Height - 100, 300, Color);
-	
-	Color.Red = 0;
-	Color.Green = 255;
-	Color.Blue = 0;
-	circumference(Dimension, PixelMatrix, Dimension.Width - 100, Dimension.Height - 100, 310, Color);
-*/	
-//	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "Saida.bmp");
-
 /*	char *OutFilename;
 	
 	OutFilename = malloc(14 * sizeof(char));

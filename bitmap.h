@@ -8,15 +8,21 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
+//Sizes of bitmap headers in bytes
 #define BITMAP_V1_INFOHEADER	40
 #define BITMAP_V2_INFOHEADER	52
 #define BITMAP_V3_INFOHEADER	56
 #define BITMAP_V4_INFOHEADER	108
 #define BITMAP_V5_INFOHEADER	124
 
-/* Resolution in pixel/meter (39.3701 * DPI) */
+//Resolution in pixel/meter (39.3701 * DPI)
 #define RESOLUTION_X	2834
 #define RESOLUTION_Y	2834
+
+//RGB to grayscale conversion method selection
+#define GRAY_AVERAGE				1
+#define GRAY_LUMI_PERCEP			2
+#define GRAY_APROX_GAM_LUMI_PERCEP	3
 
 /********************************************************************************
  * bmp_headerV1_t ==> BITMAPINFOHEADER		(40 bytes)							*
@@ -35,7 +41,12 @@ typedef struct file_header			file_header_t; //(14 bytes)
 typedef struct pixel_24bpp			pixel_t;
 typedef struct dimensions			dimensions_t;
 
-/******************************* FUNCTIONS ************************************/
+
+/*******************************************************************************
+ *                                  FUNCTIONS                                  *
+ *******************************************************************************/
+
+//========================================= IMAGE FILE MANIPULATION ============
 //create image file (return header structure)
 void create_BMP(int Width,
 				int Heigth,
@@ -53,7 +64,7 @@ dimensions_t dimensions_BMP(const char *Filename);
 //Display header information
 void display_header(const char *Filename);
 
-//------------------------------------------------------------------------------
+//========================================= GEOMETRY DRAWING ===================
 //Draw a circle on the pixel matrix
 void circle(dimensions_t Dimension,
 			pixel_t **PixelMatrix,
@@ -70,7 +81,21 @@ void circumference(dimensions_t Dimension,
 					int Radius,
 					pixel_t Color);
 
-/*************************** STRUCTURES ***************************************/
+//========================================= FILTERS AND KERNEL CONVOLUTIONS ====
+//Convert RGB to grayscale 
+////Method = GRAY_AVERAGE               (channels average) 
+////method = GRAY_LUMI_PERCEP           (channel-dependent luminance perception)  
+////method = GRAY_APROX_GAM_LUMI_PERCEP (linear aproximation of gamma and luminance perception) 
+void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method);
+
+
+//Color pass filter
+
+
+/*******************************************************************************
+ *                                   STRUCTURES                                *
+ *******************************************************************************/
+
 //temporarily set memory alignment to 1 byte
 #pragma pack(push, 1)
 
@@ -86,12 +111,12 @@ struct pixel_24bpp
 struct file_header
 {
 	//General file header (header_1 = 14 bytes)
-	unsigned char CharID_1;						//Identification code for BMP file
+	unsigned char CharID_1;				//Identification code for BMP file
 	unsigned char CharID_2;
-	unsigned int FileSize;						//Total file size (headers + pixel matrix with padding) in byte
-	unsigned short int Reserved_1;				//Reserved space for utilization by other programs
-	unsigned short int Reserved_2;				//Reserved space for utilization by other programs
-	unsigned int OffsetPixelMatrix;				//Bytes shifted until the start of the pixel matrix (header_1 + header_2)
+	unsigned int FileSize;				//Total file size (headers + pixel matrix with padding) in byte
+	unsigned short int Reserved_1;		//Reserved space for utilization by other programs
+	unsigned short int Reserved_2;		//Reserved space for utilization by other programs
+	unsigned int OffsetPixelMatrix;		//Bytes shifted until the start of the pixel matrix (header_1 + header_2)
 };
 
 //Header structure for BMP image version: BITMAPINFOHEADER (40 bytes)
@@ -125,6 +150,7 @@ struct bmp_headerV2
 	unsigned int NumColorsInTable;		//Number of colors on the color table (used when bpp<=8) (is '0' if all colors used)
 	unsigned int NumImportantColors;	//Number of important colors used
 	
+	//New additions compared to the latest version
 	unsigned int RedMask;		//Color mask valid only if Compression is set
 	unsigned int GreenMask;		//Color mask valid only if Compression is set
 	unsigned int BlueMask;		//Color mask valid only if Compression is set
@@ -149,6 +175,7 @@ struct bmp_headerV3
 	unsigned int GreenMask;		//Color mask valid only if Compression is set
 	unsigned int BlueMask;		//Color mask valid only if Compression is set
 	
+	//New addition compared to the latest version
 	unsigned int AlphaMask;		//Color mask that specifies the alpha component of each pixel
 };
 
@@ -173,6 +200,7 @@ struct bmp_headerV4
 	
 	unsigned int AlphaMask;		//Color mask that specifies the alpha component of each pixel
 	
+	//New additions compared to the latest version
 	unsigned int CSType;		//Define color space
 	int RedX;					//X coordinate of red endpoint
 	int RedY;					//Y coordinate of red endpoint
@@ -223,6 +251,7 @@ struct bmp_headerV5
 	unsigned int GammaGreen;	//Toned response curve for green. Used if CDType is set
 	unsigned int GammaBlue;		//Toned response curve for blue. Used if CDType is set
 	
+	//New additions compared to the latest version
 	unsigned int Intent;		//Rendering intent for bitmap
 	unsigned int ProfileData;   //The offset, in bytes, from beginning of BITMAPV5HEADER to profile data
 	unsigned int ProfileSize;	//Size, in bytes, of embedded profile data
