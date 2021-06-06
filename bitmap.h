@@ -27,20 +27,6 @@
 #define RESOLUTION_Y	2834
 
 
-//========================================= FILTERS AND KERNEL CONVOLUTIONS ====
-
-//Conversion method selection for "RGB_to_grayscale" function
-#define GRAY_AVERAGE				1
-#define GRAY_LUMI_PERCEP			2
-#define GRAY_APROX_GAM_LUMI_PERCEP	3
-
-//Channel pass selection for "channel_pass_filter" function
-#define PASS_RED_CHANNEL			4
-#define PASS_GREEN_CHANNEL			5
-#define PASS_BLUE_CHANNEL			6
-
-
-
 //bmp_headerV1_t ==> BITMAPINFOHEADER	(40 bytes)
 typedef struct bmp_headerV1			bmp_headerV1_t;
 
@@ -84,42 +70,9 @@ dimensions_t dimensions_BMP(const char *Filename);
 //------------------------------------------------------------------------------
 //Display header information
 void display_header(const char *Filename);
-
-
-//========================================= GEOMETRY DRAWING ===================
-
 //------------------------------------------------------------------------------
-//Draw a circle on the pixel matrix
-void circle(dimensions_t Dimension,
-			pixel_t **PixelMatrix,
-			int Pos_x,
-			int Pos_y,
-			int Radius,
-			pixel_t Color);
-//------------------------------------------------------------------------------
-//Draw a circumference on the pixel matrix
-void circumference(dimensions_t Dimension,
-					pixel_t **PixelMatrix,
-					int Pos_x,
-					int Pos_y,
-					int Radius,
-					pixel_t Color);
-
-
-//========================================= FILTERS AND KERNEL CONVOLUTIONS ====
-
-//------------------------------------------------------------------------------
-//Convert RGB to grayscale 
-////Method = GRAY_AVERAGE               (channels average) 
-////method = GRAY_LUMI_PERCEP           (channel-dependent luminance perception)  
-////method = GRAY_APROX_GAM_LUMI_PERCEP (linear aproximation of gamma and luminance perception) 
-void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method);
-//------------------------------------------------------------------------------
-//Channel pass filter
-////ChannelSelect = PASS_RED_CHANNEL
-////ChannelSelect = PASS_GREEN_CHANNEL
-////ChannelSelect = PASS_BLUE_CHANNEL
-void channel_pass_filter(dimensions_t Dimension, pixel_t **PixelMatrix, int ChannelSelect);
+//Frees space occupied by PixelMatrix
+void free_pixel_matrix(dimensions_t Dimension, pixel_t **PixelMatrix);
 
 
 /*******************************************************************************
