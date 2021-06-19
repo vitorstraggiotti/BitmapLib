@@ -44,8 +44,13 @@ void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method)
 void channel_pass_filter(dimensions_t Dimension, pixel_t **PixelMatrix, int ChannelSelect);
 //------------------------------------------------------------------------------
 //Box blur kernel convolution. Edge handling: Crop. Kernel size: 3x3.
-pixel_t** box_blur_kernel_conv(dimensions_t Dimension, pixel_t **PixelMatrix);
+pixel_t** box_blur_kernel_conv(dimensions_t Dimension, pixel_t** PixelMatrix);
 //------------------------------------------------------------------------------
+//Gaussian blur kernel convolution. Edge handling: Crop. Kernel size: 3x3.
+pixel_t** gauss_blur_kernel_conv(dimensions_t Dimension, pixel_t** PixelMatrix);
+//------------------------------------------------------------------------------
+//Sobel edge kernel convolution. Edge handling: Crop. Kernel size: 3x3.
+pixel_t** sobel_edge_kernel_conv(dimensions_t Dimension, pixel_t** PixelMatrix);
 
 /*******************************************************************************
  *                                   STRUCTURES                                *

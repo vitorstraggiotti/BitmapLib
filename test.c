@@ -16,21 +16,30 @@ int main(int argc, char *argv[])
 	
 	dimensions_t Dimension;
 	pixel_t **PixelMatrix;
-	pixel_t **BlurPixelMatrix;
+	pixel_t **ResultPixelMatrix;
 	pixel_t Color;
 	
 	Dimension = dimensions_BMP(argv[1]);
 	PixelMatrix = read_BMP(argv[1]);
 	
-	for(int i = 1; i < 40; i++)
+	printf("\nTransform to grayscale ...\n\n");
+	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_LUMI_PERCEP);
+	
+	for(int i = 1; i < 6; i++)
 	{
-		printf("blur convolution: %d\n", i);
-		BlurPixelMatrix = box_blur_kernel_conv(Dimension, PixelMatrix);
+		printf("Blur convolution: %d\n", i);
+		ResultPixelMatrix = gauss_blur_kernel_conv(Dimension, PixelMatrix);
 		free_pixel_matrix(Dimension, PixelMatrix);
-		PixelMatrix = BlurPixelMatrix;
+		PixelMatrix = ResultPixelMatrix;
 	}
 	
-	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, PixelMatrix, "saida.bmp");
+	printf("\nDetecting sobel edge ...\n\n");
+	ResultPixelMatrix = sobel_edge_kernel_conv(Dimension, PixelMatrix);
+	free_pixel_matrix(Dimension, PixelMatrix);
+
+	
+	printf("Saving BMP ...\n");
+	create_BMP(Dimension.Width, Dimension.Height, RESOLUTION_X, RESOLUTION_Y, ResultPixelMatrix, "saida.bmp");
 
 
 
