@@ -10,6 +10,7 @@
 #include <math.h>
 #include "bitmap.h"
 #include "comp_vision.h"
+#include "load_animation_v1.0.h"
 
 
 /*******************************************************************************/
@@ -62,6 +63,8 @@ void RGB_to_grayscale(dimensions_t Dimension, pixel_t **PixelMatrix, int Method)
 			PixelMatrix[row][column].Green = PixelMatrix[row][column].Red;
 			PixelMatrix[row][column].Blue = PixelMatrix[row][column].Red;
 		}
+		
+		print_progress((long) row, 0, (long) Dimension.Height - 1, 50);
 	}
 }
 
@@ -83,6 +86,9 @@ void channel_pass_filter(dimensions_t Dimension, pixel_t **PixelMatrix, int Chan
 					PixelMatrix[row][column].Green = 0;
 					PixelMatrix[row][column].Blue = 0;
 				}
+				
+				//Progress bar
+				print_progress((long) row, 0, (long) Dimension.Height - 1, 50);
 			}
 			break;
 			
@@ -94,6 +100,9 @@ void channel_pass_filter(dimensions_t Dimension, pixel_t **PixelMatrix, int Chan
 					PixelMatrix[row][column].Red = 0;
 					PixelMatrix[row][column].Blue = 0;
 				}
+				
+				//Progress bar
+				print_progress((long) row, 0, (long) Dimension.Height - 1, 50);
 			}
 			break;
 			
@@ -105,6 +114,9 @@ void channel_pass_filter(dimensions_t Dimension, pixel_t **PixelMatrix, int Chan
 					PixelMatrix[row][column].Red = 0;
 					PixelMatrix[row][column].Green = 0;
 				}
+				
+				//Progress bar
+				print_progress((long) row, 0, (long) Dimension.Height - 1, 50);
 			}
 			break;
 			
@@ -177,6 +189,9 @@ pixel_t** box_blur_kernel_conv(dimensions_t Dimension, pixel_t **PixelMatrix)
 				FinalPixelMatrix[row][column].Blue = PixelMatrix[row][column].Blue;
 			}
 		}
+		
+		//Progress bar
+		print_progress((long) row, 0, (long) Dimension.Height - 1, 50);
 	}
 	
 	return FinalPixelMatrix;
@@ -243,6 +258,9 @@ pixel_t** gauss_blur_kernel_conv(dimensions_t Dimension, pixel_t** PixelMatrix)
 				FinalPixelMatrix[row][column].Blue = PixelMatrix[row][column].Blue;
 			}
 		}
+		
+		//Progress bar
+		print_progress((long) row, 0, (long) Dimension.Height - 1, 50);
 	}
 	
 	return FinalPixelMatrix;
@@ -354,6 +372,9 @@ pixel_t** sobel_edge_kernel_conv(dimensions_t Dimension, pixel_t** PixelMatrix)
 				FinalPixelMatrix[row][column].Blue = PixelMatrix[row][column].Blue;
 			}
 		}
+		
+		//Progress bar
+		print_progress((long) row, 0, (long) Dimension.Height - 1, 50);
 	}
 	
 	return FinalPixelMatrix;

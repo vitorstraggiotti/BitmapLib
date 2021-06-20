@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "bitmap.h"
 #include "comp_vision.h"
+#include "load_animation_v1.0.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,20 +23,23 @@ int main(int argc, char *argv[])
 	Dimension = dimensions_BMP(argv[1]);
 	PixelMatrix = read_BMP(argv[1]);
 	
-	printf("\nTransform to grayscale ...\n\n");
+	printf("\nTransform to grayscale ...\n");
 	RGB_to_grayscale(Dimension, PixelMatrix, GRAY_LUMI_PERCEP);
+	fputc('\n', stdout);
 	
 	for(int i = 1; i < 6; i++)
 	{
 		printf("Blur convolution: %d\n", i);
 		ResultPixelMatrix = gauss_blur_kernel_conv(Dimension, PixelMatrix);
+		fputc('\n', stdout);
 		free_pixel_matrix(Dimension, PixelMatrix);
 		PixelMatrix = ResultPixelMatrix;
 	}
 	
-	printf("\nDetecting sobel edge ...\n\n");
+	printf("\nDetecting sobel edge ...\n");
 	ResultPixelMatrix = sobel_edge_kernel_conv(Dimension, PixelMatrix);
 	free_pixel_matrix(Dimension, PixelMatrix);
+	fputc('c', stdout);
 
 	
 	printf("Saving BMP ...\n");
