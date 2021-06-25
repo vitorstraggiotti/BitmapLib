@@ -13,12 +13,7 @@
 
 /********************************************************************************/
 //Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
-void create_BMP(int Width,
-				int Height,
-				unsigned int ResolutionX,
-				unsigned int ResolutionY,
-				pixel_t **PixelMatrix,
-				const char *Filename)
+void create_BMP(int Width, int Height, pixel_t **PixelMatrix, const char *Filename)
 {
 	file_header_t	FileHeader;
 	bmp_headerV1_t	BMPHeaderV1;
@@ -51,8 +46,8 @@ void create_BMP(int Width,
 	BMPHeaderV1.Planes = 1;
 	BMPHeaderV1.ColorDepth = 24;
 	BMPHeaderV1.Compression = 0;
-	BMPHeaderV1.ResolutionX = ResolutionX;
-	BMPHeaderV1.ResolutionY = ResolutionY;
+	BMPHeaderV1.ResolutionX = RESOLUTION_X;
+	BMPHeaderV1.ResolutionY = RESOLUTION_Y;
 	BMPHeaderV1.NumColorsInTable = 0;
 	BMPHeaderV1.NumImportantColors = 0;
 

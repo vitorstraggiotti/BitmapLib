@@ -55,12 +55,7 @@ typedef struct dimensions			dimensions_t;
 
 //------------------------------------------------------------------------------
 //create image file (return header structure)
-void create_BMP(int Width,
-				int Heigth,
-				unsigned int ResolutionX,
-				unsigned int ResolutionY,
-				pixel_t **PixelMatrix,
-				const char *Filename);
+void create_BMP(int Width, int Heigth, pixel_t **PixelMatrix, const char *Filename);
 //------------------------------------------------------------------------------
 //Read BMP image to a pixel matrix
 pixel_t **read_BMP(const char *Filename);
