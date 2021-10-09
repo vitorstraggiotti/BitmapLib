@@ -13,24 +13,15 @@ all:
 	@echo "  make clean --> erase program and build files"
 
 
-$(PROGNAME): ./build/bitmap.o \
-             ./build/comp_vision.o \
-             ./build/load_animation_v1.0.o \
-             ./build/test.o
+$(PROGNAME): bitmap.o test.o
 	$(CC) -o $@ $^ $(CLIBS)
 
-./build/test.o: ./examples/test.c
+test.o: test.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 	
-./build/bitmap.o: ./source/bitmap.c
-	$(CC) $(CFLAGS) -c -o $@ $^
-
-./build/comp_vision.o: ./source/comp_vision.c
-	$(CC) $(CFLAGS) -c -o $@ $^
-
-./build/load_animation_v1.0.o: ./source/load_animation_v1.0.c
+bitmap.o: bitmap.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 	
 	
 clean:
-	rm -rf ./build/* $(PROGNAME)
+	rm $(PROGNAME) *.o saida.bmp

@@ -9,7 +9,8 @@
  
 #include <stdlib.h>
 #include <stdio.h>
-#include "../include/bitmap.h"
+
+#include "bitmap.h"
 
 /********************************************************************************/
 //Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
