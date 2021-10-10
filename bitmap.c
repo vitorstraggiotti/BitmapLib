@@ -9,27 +9,32 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>		//To sue precise data types (uint8_t, uint16_t ...)
 
 #include "bitmap.h"
 
-/********************************************************************************/
+
+/*******************************************************************************
+ *                              FUNCTION DEFINITIONS                           *
+ *******************************************************************************/
+
 //Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
-void create_BMP(int Width, int Height, pixel_t **PixelMatrix, const char *Filename)
+void create_BMP(img24_t *Img, const char *Filename)
 {
 	file_header_t	FileHeader;
 	bmp_headerV1_t	BMPHeaderV1;
-	u_int8_t		ByteZero = 0;
-	int 			SizeWidthByte;
-	int				TotalWidthMod4;
+	uint8_t			ByteZero = 0;
+	int32_t 		SizeWidthByte;
+	int32_t			TotalWidthMod4;
 
 	//evaluate image dimensions
-	if((Width > 20000)||(Height > 20000))
+	if((Img->Width > 20000)||(Img->Height > 20000))
 	{
 		printf("Error: Image dimensions exceed creation limits of 20000 by 20000\n\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	if((Width < 2)||(Height < 2))
+	if((Img->Width < 2)||(Img->Height < 2))
 	{
 		printf("Error: Dimensions for image creation should be equal or greater than 2 by 2\n\n");
 		exit(EXIT_FAILURE);
@@ -42,8 +47,8 @@ void create_BMP(int Width, int Height, pixel_t **PixelMatrix, const char *Filena
 	FileHeader.OffsetPixelMatrix = 54;
 	
 	BMPHeaderV1.SizeHeader = 40;
-	BMPHeaderV1.Width = Width;
-	BMPHeaderV1.Height = Height;
+	BMPHeaderV1.Width = Img->Width;
+	BMPHeaderV1.Height = Img->Height;
 	BMPHeaderV1.Planes = 1;
 	BMPHeaderV1.ColorDepth = 24;
 	BMPHeaderV1.Compression = 0;
@@ -53,7 +58,7 @@ void create_BMP(int Width, int Height, pixel_t **PixelMatrix, const char *Filena
 	BMPHeaderV1.NumImportantColors = 0;
 
 	//Finding pixel matrix size and adding padding
-	SizeWidthByte = Width * 3;			//size of one line in bytes
+	SizeWidthByte = Img->Width * 3;			//size of one line in bytes
 	TotalWidthMod4 = SizeWidthByte % 4;
 	
 	if(TotalWidthMod4 != 0)
@@ -61,7 +66,7 @@ void create_BMP(int Width, int Height, pixel_t **PixelMatrix, const char *Filena
 		SizeWidthByte = SizeWidthByte + 4 - TotalWidthMod4;
 	}
 	
-	BMPHeaderV1.SizePixelMatrix = SizeWidthByte * Height;
+	BMPHeaderV1.SizePixelMatrix = SizeWidthByte * Img->Height;
 
 	//Finding total image file size
 	FileHeader.FileSize = 54 + BMPHeaderV1.SizePixelMatrix;
@@ -81,25 +86,25 @@ void create_BMP(int Width, int Height, pixel_t **PixelMatrix, const char *Filena
 	fwrite(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, ImageFile);
 	
 	//Writing image
-	for(int row = 0; row < Height; row++)
+	for(int32_t row = 0; row < Img->Height; row++)
 	{
-		for(int column = 0; column < Width; column++)
+		for(int32_t column = 0; column < Img->Width; column++)
 		{
-			fwrite(&PixelMatrix[row][column], sizeof(pixel_t), 1, ImageFile);
+			fwrite(&Img->Pixel[row][column], sizeof(pixel24_t), 1, ImageFile);
 			
-			if(column == (Width - 1))
+			if(column == (Img->Width - 1))
 			{
 				if(TotalWidthMod4 == 1)
 				{
-					fwrite(&ByteZero, sizeof(unsigned char), 3, ImageFile);
+					fwrite(&ByteZero, sizeof(uint8_t), 3, ImageFile);
 					
 				}else if(TotalWidthMod4 == 2)
 				{
-					fwrite(&ByteZero, sizeof(unsigned char), 2, ImageFile);
+					fwrite(&ByteZero, sizeof(uint8_t), 2, ImageFile);
 					
 				}else if(TotalWidthMod4 == 3)
 				{
-					fwrite(&ByteZero, sizeof(unsigned char), 1, ImageFile);
+					fwrite(&ByteZero, sizeof(uint8_t), 1, ImageFile);
 				}
 			}
 		}
@@ -110,7 +115,7 @@ void create_BMP(int Width, int Height, pixel_t **PixelMatrix, const char *Filena
 
 /******************************************************************************/
 //Read BMP image to a pixel matrix [OK]
-pixel_t **read_BMP(const char *Filename)
+img24_t *read_BMP(const char *Filename)
 {
 	file_header_t	FileHeader;
 	bmp_headerV1_t	BMPHeaderV1;
@@ -118,9 +123,11 @@ pixel_t **read_BMP(const char *Filename)
 	bmp_headerV3_t	BMPHeaderV3;
 	bmp_headerV4_t	BMPHeaderV4;
 	bmp_headerV5_t	BMPHeaderV5;
-	pixel_t			**PixelMatrix;
-	unsigned char	Trash;
-	int				Width, Height;
+	
+	img24_t			*Img;
+
+	uint8_t 		Trash;
+	
 	FILE 			*Image;
 	
 	//open image
@@ -140,37 +147,40 @@ pixel_t **read_BMP(const char *Filename)
 		exit(EXIT_FAILURE);
 	}
 	
+	//Allocate space for image struct
+	Img = malloc(sizeof(img24_t));
+	
 	//Finding out BMP header version and reading it
 	switch(FileHeader.OffsetPixelMatrix - sizeof(file_header_t))
 	{
 		case BITMAP_V1_INFOHEADER :
 			fread(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, Image);
-			Width = BMPHeaderV1.Width;
-			Height = BMPHeaderV1.Height;
+			Img->Width = BMPHeaderV1.Width;
+			Img->Height = BMPHeaderV1.Height;
 			break;
 			
 		case BITMAP_V2_INFOHEADER :
 			fread(&BMPHeaderV2, sizeof(bmp_headerV2_t), 1, Image);
-			Width = BMPHeaderV2.Width;
-			Height = BMPHeaderV2.Height;
+			Img->Width = BMPHeaderV2.Width;
+			Img->Height = BMPHeaderV2.Height;
 			break;
 		
 		case BITMAP_V3_INFOHEADER :
 			fread(&BMPHeaderV3, sizeof(bmp_headerV3_t), 1, Image);
-			Width = BMPHeaderV3.Width;
-			Height = BMPHeaderV3.Height;
+			Img->Width = BMPHeaderV3.Width;
+			Img->Height = BMPHeaderV3.Height;
 			break;
 		
 		case BITMAP_V4_INFOHEADER :
 			fread(&BMPHeaderV4, sizeof(bmp_headerV4_t), 1, Image);
-			Width = BMPHeaderV4.Width;
-			Height = BMPHeaderV4.Height;
+			Img->Width = BMPHeaderV4.Width;
+			Img->Height = BMPHeaderV4.Height;
 			break;
 			
 		case BITMAP_V5_INFOHEADER :
 			fread(&BMPHeaderV5, sizeof(bmp_headerV5_t), 1, Image);
-			Width = BMPHeaderV5.Width;
-			Height = BMPHeaderV5.Height;
+			Img->Width = BMPHeaderV5.Width;
+			Img->Height = BMPHeaderV5.Height;
 			break;
 			
 		default :
@@ -182,35 +192,35 @@ pixel_t **read_BMP(const char *Filename)
 			printf("       - BITMAPV5HEADER      (V5)\n");
 			exit(EXIT_FAILURE);
 	}
+		
+	//allocate space for pixel matrix
+	Img->Pixel = malloc(Img->Height * sizeof(pixel24_t*));
 	
-	//alocate space for pixel matrix
-	PixelMatrix = malloc(Height * sizeof(pixel_t*));
-	
-	for(int row = 0; row < Height; row++)
+	for(int32_t row = 0; row < Img->Height; row++)
 	{
-		PixelMatrix[row] = malloc(Width * sizeof(pixel_t));
+		Img->Pixel[row] = malloc(Img->Width * sizeof(pixel24_t));
 	}
 
 	//Reading image and copying to pixel matrix
-	for(int row = 0; row < Height; row++)
+	for(int32_t row = 0; row < Img->Height; row++)
 	{
-		for(int column = 0; column < Width; column++)
+		for(int32_t column = 0; column < Img->Width; column++)
 		{
-			fread(&PixelMatrix[row][column], sizeof(pixel_t), 1, Image);
+			fread(&Img->Pixel[row][column], sizeof(pixel24_t), 1, Image);
 			
-			if(column == (Width - 1))
+			if(column == (Img->Width - 1))
 			{
-				if(((Width * 3) % 4) == 1)
+				if(((Img->Width * 3) % 4) == 1)
 				{
-					fread(&Trash, sizeof(unsigned char), 3, Image);
+					fread(&Trash, sizeof(uint8_t), 3, Image);
 					
-				}else if(((Width * 3) % 4) == 2)
+				}else if(((Img->Width * 3) % 4) == 2)
 				{
-					fread(&Trash, sizeof(unsigned char), 2, Image);
+					fread(&Trash, sizeof(uint8_t), 2, Image);
 					
-				}else if(((Width * 3) % 4) == 3)
+				}else if(((Img->Width * 3) % 4) == 3)
 				{
-					fread(&Trash, sizeof(unsigned char), 1, Image);
+					fread(&Trash, sizeof(uint8_t), 1, Image);
 				}
 			}
 		}
@@ -218,11 +228,12 @@ pixel_t **read_BMP(const char *Filename)
 	
 	fclose(Image);
 	
-	return PixelMatrix;
+	return Img;
 }
 
 /******************************************************************************/
 //Find dimensions of the BMP image [OK]
+#if 0
 dimensions_t dimensions_BMP(const char *Filename)
 {
 	file_header_t	FileHeader;
@@ -299,7 +310,7 @@ dimensions_t dimensions_BMP(const char *Filename)
 	return Dimension;
 
 }
-
+#endif
 /******************************************************************************/
 //Display header information [OK]
 void display_header(const char *Filename)
@@ -310,6 +321,7 @@ void display_header(const char *Filename)
 	bmp_headerV3_t BMPHeaderV3;
 	bmp_headerV4_t BMPHeaderV4;
 	bmp_headerV5_t BMPHeaderV5;
+	
 	FILE *File;
 	
 	//Opening image
@@ -785,14 +797,15 @@ void display_header(const char *Filename)
 }
 
 /******************************************************************************/
-//Frees space occupied by PixelMatrix
-void free_pixel_matrix(dimensions_t Dimension, pixel_t **PixelMatrix)
+//Frees space occupied by Image
+void free_img(img24_t *Img)
 {
-	for (int row = 0; row < Dimension.Height; row++)
+	for (int32_t row = 0; row < Img->Height; row++)
 	{
-		free(PixelMatrix[row]);
+		free(Img->Pixel[row]);
 	}
-	free(PixelMatrix);
+	free(Img->Pixel);
+	free(Img);
 }
 
 

@@ -15,23 +15,23 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	
-	dimensions_t Dimension;
-	pixel_t **PixelMatrix;
+	img24_t *Imagem;
 	
-	Dimension = dimensions_BMP(argv[1]);
-	PixelMatrix = read_BMP(argv[1]);
+	Imagem = read_BMP(argv[1]);
 	
-	for(int i = Dimension.Height / 3; i < ((Dimension.Height * 2) / 3); i++)
+	for(int i = Imagem->Height / 3; i < ((Imagem->Height * 2) / 3); i++)
 	{
-		for(int j = Dimension.Width / 3; j < ((Dimension.Width * 2) / 3); j++)
+		for(int j = Imagem->Width / 3; j < ((Imagem->Width * 2) / 3); j++)
 		{
-			PixelMatrix[i][j].Red = 200;
+			Imagem->Pixel[i][j].Red = 200;
 		}
 	}
 
 	printf("Saving BMP ...\n");
-	create_BMP(Dimension.Width, Dimension.Height, PixelMatrix, "saida.bmp");
+	create_BMP(Imagem, "saida.bmp");
 	fputc('\a', stdout);
+	
+	free_img(Imagem);
 
 }
 
