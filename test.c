@@ -17,7 +17,11 @@ int main(int argc, char *argv[])
 	
 	img24_t *Imagem;
 	
+	printf("Reading image ...\n");
 	Imagem = read_BMP(argv[1]);
+	
+	printf("Display image info ...\n");
+	display_header(argv[1]);
 	
 	for(int i = Imagem->Height / 3; i < ((Imagem->Height * 2) / 3); i++)
 	{
@@ -28,11 +32,12 @@ int main(int argc, char *argv[])
 	}
 
 	printf("Saving BMP ...\n");
-	create_BMP(Imagem, "saida.bmp");
+	save_BMP(Imagem, "saida.bmp");
 	fputc('\a', stdout);
 	
+	printf("Freeing memory ...\n");
 	free_img(Imagem);
-
+	
 }
 
 

@@ -19,7 +19,7 @@
  *******************************************************************************/
 
 //Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
-void create_BMP(img24_t *Img, const char *Filename)
+void save_BMP(img24_t *Img, const char *Filename)
 {
 	file_header_t	FileHeader;
 	bmp_headerV1_t	BMPHeaderV1;

@@ -228,8 +228,8 @@ typedef struct img24				img24_t;
 //========================= IMAGE FILE MANIPULATION ============================
 
 //------------------------------------------------------------------------------
-//create image file (return header structure)
-void create_BMP(img24_t *Img, const char *Filename);
+//create image file
+void save_BMP(img24_t *Img, const char *Filename);
 //------------------------------------------------------------------------------
 //Read BMP image to a pixel matrix
 img24_t *read_BMP(const char *Filename);
@@ -242,7 +242,6 @@ void display_header(const char *Filename);
 //------------------------------------------------------------------------------
 //Frees space occupied by PixelMatrix
 void free_img(img24_t *Img);
-
 
 
 #endif
