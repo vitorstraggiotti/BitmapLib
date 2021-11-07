@@ -24,4 +24,4 @@ bitmap.o: bitmap.c
 	
 	
 clean:
-	rm $(PROGNAME) *.o saida.bmp
+	rm $(PROGNAME) *.o saida*

@@ -19,7 +19,7 @@
  *******************************************************************************/
 
 //Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
-void save_BMP(img24_t *Img, const char *Filename)
+void save_BMP(img_t *Img, const char *Filename)
 {
 	file_header_t	FileHeader;
 	bmp_headerV1_t	BMPHeaderV1;
@@ -90,7 +90,7 @@ void save_BMP(img24_t *Img, const char *Filename)
 	{
 		for(int32_t column = 0; column < Img->Width; column++)
 		{
-			fwrite(&Img->Pixel[row][column], sizeof(pixel24_t), 1, ImageFile);
+			fwrite(&Img->Pixel24[row][column], sizeof(pixel24_t), 1, ImageFile);
 			
 			if(column == (Img->Width - 1))
 			{
@@ -115,7 +115,7 @@ void save_BMP(img24_t *Img, const char *Filename)
 
 /******************************************************************************/
 //Read BMP image to a pixel matrix [OK]
-img24_t *read_BMP(const char *Filename)
+img_t *read_BMP(const char *Filename)
 {
 	file_header_t	FileHeader;
 	bmp_headerV1_t	BMPHeaderV1;
@@ -124,7 +124,7 @@ img24_t *read_BMP(const char *Filename)
 	bmp_headerV4_t	BMPHeaderV4;
 	bmp_headerV5_t	BMPHeaderV5;
 	
-	img24_t			*Img;
+	img_t			*Img;
 
 	uint8_t 		Trash;
 	
@@ -148,7 +148,7 @@ img24_t *read_BMP(const char *Filename)
 	}
 	
 	//Allocate space for image struct
-	Img = malloc(sizeof(img24_t));
+	Img = malloc(sizeof(img_t));
 	
 	//Finding out BMP header version and reading it
 	switch(FileHeader.OffsetPixelMatrix - sizeof(file_header_t))
@@ -194,11 +194,11 @@ img24_t *read_BMP(const char *Filename)
 	}
 		
 	//allocate space for pixel matrix
-	Img->Pixel = malloc(Img->Height * sizeof(pixel24_t*));
+	Img->Pixel24 = malloc(Img->Height * sizeof(pixel24_t*));
 	
 	for(int32_t row = 0; row < Img->Height; row++)
 	{
-		Img->Pixel[row] = malloc(Img->Width * sizeof(pixel24_t));
+		Img->Pixel24[row] = malloc(Img->Width * sizeof(pixel24_t));
 	}
 
 	//Reading image and copying to pixel matrix
@@ -206,7 +206,7 @@ img24_t *read_BMP(const char *Filename)
 	{
 		for(int32_t column = 0; column < Img->Width; column++)
 		{
-			fread(&Img->Pixel[row][column], sizeof(pixel24_t), 1, Image);
+			fread(&Img->Pixel24[row][column], sizeof(pixel24_t), 1, Image);
 			
 			if(column == (Img->Width - 1))
 			{
@@ -230,7 +230,31 @@ img24_t *read_BMP(const char *Filename)
 	
 	return Img;
 }
-
+/******************************************************************************/
+//Create new empty image with given size
+img_t *new_BMP(int32_t Width, int32_t Height)
+{
+	img_t	*BlankImg;
+	
+	BlankImg = (img_t *)malloc(sizeof(img_t));
+	
+	BlankImg->Pixel24 = (pixel24_t **)malloc(Height * sizeof(pixel24_t *));
+	for(int32_t i = 0; i < Height; i++)
+	{
+		BlankImg->Pixel24[i] = (pixel24_t *)malloc(Width * sizeof(pixel24_t));
+		for(int32_t j = 0; j < Width; j++)
+		{
+			BlankImg->Pixel24[i][j].Red = 0;
+			BlankImg->Pixel24[i][j].Green = 0;
+			BlankImg->Pixel24[i][j].Blue = 0;
+		}
+	}
+	
+	BlankImg->Width = Width;
+	BlankImg->Height = Height;
+	
+	return BlankImg;
+}
 /******************************************************************************/
 //Find dimensions of the BMP image [OK]
 #if 0
@@ -798,13 +822,13 @@ void display_header(const char *Filename)
 
 /******************************************************************************/
 //Frees space occupied by Image
-void free_img(img24_t *Img)
+void free_img(img_t *Img)
 {
 	for (int32_t row = 0; row < Img->Height; row++)
 	{
-		free(Img->Pixel[row]);
+		free(Img->Pixel24[row]);
 	}
-	free(Img->Pixel);
+	free(Img->Pixel24);
 	free(Img);
 }
 

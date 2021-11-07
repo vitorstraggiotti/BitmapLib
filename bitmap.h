@@ -194,9 +194,10 @@ struct bmp_headerV5
 };
 #pragma pack(pop)
 
-struct img24
+struct img
 {
-	struct pixel_24bpp **Pixel;
+	struct pixel_24bpp **Pixel24;
+	//Dimensions
 	int32_t Width;
 	int32_t Height;
 };
@@ -217,31 +218,30 @@ typedef struct bmp_headerV4			bmp_headerV4_t;
 typedef struct bmp_headerV5			bmp_headerV5_t;
 
 typedef struct file_header			file_header_t; //(14 bytes)
+
 typedef struct pixel_24bpp			pixel24_t;
-typedef struct img24				img24_t;
+typedef struct img					img_t;
 
 
 /*******************************************************************************
  *                                  FUNCTIONS                                  *
  *******************************************************************************/
 
-//========================= IMAGE FILE MANIPULATION ============================
-
 //------------------------------------------------------------------------------
 //create image file
-void save_BMP(img24_t *Img, const char *Filename);
+void save_BMP(img_t *Img, const char *Filename);
 //------------------------------------------------------------------------------
 //Read BMP image to a pixel matrix
-img24_t *read_BMP(const char *Filename);
+img_t *read_BMP(const char *Filename);
 //------------------------------------------------------------------------------
-//Find Width of the BMP image
-//dimensions_t dimensions_BMP(const char *Filename);
+//Create new empty image with given size
+img_t *new_BMP(int32_t Width, int32_t Height);
 //------------------------------------------------------------------------------
 //Display header information
 void display_header(const char *Filename);
 //------------------------------------------------------------------------------
 //Frees space occupied by PixelMatrix
-void free_img(img24_t *Img);
+void free_img(img_t *Img);
 
 
 #endif
