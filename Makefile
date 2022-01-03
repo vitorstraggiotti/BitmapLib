@@ -1,6 +1,7 @@
 
 CC = gcc
-CFLAGS = -Wall -pedantic -O2
+CFLAGS = -Wall -pedantic -O2 -c
+D_CFLAGS = -Wall -pedantic -g -c
 CLIBS = -lm
 
 PROGNAME = test
@@ -9,19 +10,30 @@ PROGNAME = test
 
 all:
 	@echo "Make options:"
-	@echo "  make test --> build test program"
-	@echo "  make clean --> erase program and build files"
+	@echo "  make test    --> build test program"
+	@echo "  make testGDB --> build debug version"
+	@echo "  make clean   --> erase program and build files"
 
 
-$(PROGNAME): bitmap.o test.o
+# Optimized version
+test: bitmap.o test.o
 	$(CC) -o $@ $^ $(CLIBS)
 
 test.o: test.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 	
 bitmap.o: bitmap.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Debug version
+testGDB: bitmap_d.o test_d.o
+	$(CC) -o $@ $^ $(CLIBS)
+
+test_d.o: test.c
+	$(CC) $(D_CFLAGS) -o $@ $^
 	
-	
+bitmap_d.o: bitmap.c
+	$(CC) $(D_CFLAGS) -o $@ $^
+
 clean:
-	rm $(PROGNAME) *.o saida*
+	rm test testGDB *.o saida*

@@ -196,10 +196,10 @@ struct bmp_headerV5
 
 struct img
 {
-	struct pixel_24bpp **Pixel24;
 	//Dimensions
 	int32_t Width;
 	int32_t Height;
+	struct pixel_24bpp **Pixel24;
 };
 
 //bmp_headerV1_t ==> BITMAPINFOHEADER	(40 bytes)
@@ -228,10 +228,12 @@ typedef struct img					img_t;
  *******************************************************************************/
 
 //------------------------------------------------------------------------------
-//create image file
-void save_BMP(img_t *Img, const char *Filename);
+/* Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
+   Return -1 if fail and 0 on success */
+int save_BMP(img_t *Img, const char *Filename);
 //------------------------------------------------------------------------------
-//Read BMP image to a pixel matrix
+/* Read BMP image to a pixel matrix [OK]
+   Return NULL if fail */
 img_t *read_BMP(const char *Filename);
 //------------------------------------------------------------------------------
 //Create new empty image with given size

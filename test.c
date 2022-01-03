@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
 	
 	printf("Display image info ...\n");
 	display_header(argv[1]);
-	
+
+	printf("Editing read image...\n");
 	for(int i = Imagem->Height / 3; i < ((Imagem->Height * 2) / 3); i++)
 	{
 		for(int j = Imagem->Width / 3; j < ((Imagem->Width * 2) / 3); j++)
@@ -31,7 +32,8 @@ int main(int argc, char *argv[])
 			Imagem->Pixel24[i][j].Red = 200;
 		}
 	}
-	
+
+	printf("Editing CG image...\n");
 	for(int i = CgImg->Height / 3; i < ((CgImg->Height * 2) / 3); i++)
 	{
 		for(int j = CgImg->Width / 3; j < ((CgImg->Width * 2) / 3); j++)
