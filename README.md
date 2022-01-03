@@ -3,6 +3,7 @@
 A simple library to read, write and seek info of .bmp files
 
 ## Functions available
+
 ```C
 //------------------------------------------------------------------------------
 /* Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
