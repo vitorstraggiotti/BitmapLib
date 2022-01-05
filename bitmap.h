@@ -3,6 +3,7 @@
  *                                                                   *
  * Author: Vitor Henrique Andrade Helfensteller Straggiotti Silva    *
  * Created on: 28/05/2021 (DD/MM/YYYY)                               *
+ * Version: 1.0.0  ([major].[minor].[bugs])
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef __BITMAP_H__

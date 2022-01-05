@@ -2,9 +2,10 @@
  * Source code to manage bitmap image											*
  * Image creation characteristics:												*
  * 24 bit color depth, no color table, no compression							*
- *																				*
+ * 																				*
  * Autor: Vitor Henrique Andrade Helfensteller Satraggiotti Silva				*
- * Start date: 28/05/2021														*
+ * Start date: 28/05/2021	(DD/MM/YYYY)										*
+ * Version: 1.0.0  ([major].[minor].[bugs])										*
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
  
  // 1) Adicionar suporte para imagens 8 bits (escala de cinza)
