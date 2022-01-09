@@ -5,7 +5,7 @@
  * 																				*
  * Autor: Vitor Henrique Andrade Helfensteller Satraggiotti Silva				*
  * Start date: 28/05/2021	(DD/MM/YYYY)										*
- * Version: 1.0.0  ([major].[minor].[bugs])										*
+ * Version: 1.1.0  ([major].[minor].[bugs])										*
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
  
  // 1) Adicionar suporte para imagens 8 bits (escala de cinza)
@@ -24,7 +24,7 @@
  *                              FUNCTION DEFINITIONS                           *
  *******************************************************************************/
 
-/* Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
+/* Create BMP image file (header used: BITMAPINFOHEADER (V1))
    Return -1 if fail and 0 on success */
 int save_BMP(img_t *Img, const char *Filename)
 {
@@ -34,7 +34,7 @@ int save_BMP(img_t *Img, const char *Filename)
 	int32_t 		SizeWidthByte;
 	int32_t			TotalWidthMod4;
 
-	//evaluate image dimensions
+	/* Evaluate image dimensions */
 	if((Img->Width > 20000)||(Img->Height > 20000))
 	{
 		printf("Error: Image dimensions exceed creation limits of 20000 by 20000\n\n");
@@ -64,8 +64,8 @@ int save_BMP(img_t *Img, const char *Filename)
 	BMPHeaderV1.NumColorsInTable = 0;
 	BMPHeaderV1.NumImportantColors = 0;
 
-	//Finding pixel matrix size and adding padding
-	SizeWidthByte = Img->Width * 3;			//size of one line in bytes
+	/* Finding pixel matrix size and adding padding */
+	SizeWidthByte = Img->Width * 3;			/* size of one line in bytes */
 	TotalWidthMod4 = SizeWidthByte % 4;
 	
 	if(TotalWidthMod4 != 0)
@@ -75,10 +75,10 @@ int save_BMP(img_t *Img, const char *Filename)
 	
 	BMPHeaderV1.SizePixelMatrix = SizeWidthByte * Img->Height;
 
-	//Finding total image file size
+	/* Finding total image file size */
 	FileHeader.FileSize = 54 + BMPHeaderV1.SizePixelMatrix;
 
-	//Opening image file
+	/* Opening image file */
 	FILE *ImageFile;
 	
 	ImageFile = fopen(Filename, "wb");
@@ -88,7 +88,7 @@ int save_BMP(img_t *Img, const char *Filename)
 		return -1;
 	}
 	
-	//Writing headers
+	/* Writing headers */
 	if(fwrite(&FileHeader, sizeof(file_header_t), 1, ImageFile) != 1)
 	{
 		printf("Error: Could not write \"File Header\" to file.\n\n");
@@ -100,7 +100,7 @@ int save_BMP(img_t *Img, const char *Filename)
 		return -1;
 	}
 	
-	//Writing image
+	/* Writing image */
 	for(int32_t row = 0; row < Img->Height; row++)
 	{
 		for(int32_t column = 0; column < Img->Width; column++)
@@ -139,8 +139,8 @@ int save_BMP(img_t *Img, const char *Filename)
 					}
 				}
 			}
-		}//column loop
-	}//row loop
+		}/* column loop */
+	}/* row loop */
 	
 	fclose(ImageFile);
 
@@ -148,7 +148,7 @@ int save_BMP(img_t *Img, const char *Filename)
 }
 
 /******************************************************************************/
-/* Read BMP image to a pixel matrix [OK]
+/* Read BMP image to a pixel matrix
    Return NULL if fail */
 img_t *read_BMP(const char *Filename)
 {
@@ -305,7 +305,8 @@ img_t *read_BMP(const char *Filename)
 	return Img;
 }
 /******************************************************************************/
-//Create new empty image with given size
+/* Create new empty image with given size.
+   Return NULL if fail */
 img_t *new_BMP(int32_t Width, int32_t Height)
 {
 	img_t	*BlankImg;
@@ -313,9 +314,17 @@ img_t *new_BMP(int32_t Width, int32_t Height)
 	BlankImg = (img_t *)malloc(sizeof(img_t));
 	
 	BlankImg->Pixel24 = (pixel24_t **)malloc(Height * sizeof(pixel24_t *));
+
+	if(BlankImg->Pixel24 == NULL)
+		return NULL;
+
 	for(int32_t i = 0; i < Height; i++)
 	{
 		BlankImg->Pixel24[i] = (pixel24_t *)malloc(Width * sizeof(pixel24_t));
+
+		if(BlankImg->Pixel24[i] == NULL)
+			return NULL;
+
 		for(int32_t j = 0; j < Width; j++)
 		{
 			BlankImg->Pixel24[i][j].Red = 0;
@@ -328,6 +337,52 @@ img_t *new_BMP(int32_t Width, int32_t Height)
 	BlankImg->Height = Height;
 	
 	return BlankImg;
+}
+/******************************************************************************/
+/* Create new empty image with same size as given image.
+   Return NULL if fail */
+img_t *new_BMP_as_size(img_t *OriginalImage)
+{
+	img_t *BlankImage;
+	
+	BlankImage = new_BMP(OriginalImage->Width, OriginalImage->Height);
+
+	return BlankImage;
+	
+}
+/******************************************************************************/
+/* Create a copy of given image.
+   Return NULL if fail */
+img_t *copy_BMP(img_t *OriginalImage)
+{
+	img_t	*CopyImg;
+	
+	CopyImg = (img_t *)malloc(sizeof(img_t));
+	
+	CopyImg->Pixel24 = (pixel24_t **)malloc(OriginalImage->Height * sizeof(pixel24_t *));
+
+	if(CopyImg->Pixel24 == NULL)
+		return NULL;
+
+	for(int32_t i = 0; i < OriginalImage->Height; i++)
+	{
+		CopyImg->Pixel24[i] = (pixel24_t *)malloc(OriginalImage->Width * sizeof(pixel24_t));
+
+		if(CopyImg->Pixel24[i] == NULL)
+			return NULL;
+
+		for(int32_t j = 0; j < OriginalImage->Width; j++)
+		{
+			CopyImg->Pixel24[i][j].Red = OriginalImage->Pixel24[i][j].Red;
+			CopyImg->Pixel24[i][j].Green = OriginalImage->Pixel24[i][j].Green;
+			CopyImg->Pixel24[i][j].Blue = OriginalImage->Pixel24[i][j].Blue;
+		}
+	}
+	
+	CopyImg->Width = OriginalImage->Width;
+	CopyImg->Height = OriginalImage->Height;
+	
+	return CopyImg;
 }
 /******************************************************************************/
 //Find dimensions of the BMP image [OK]

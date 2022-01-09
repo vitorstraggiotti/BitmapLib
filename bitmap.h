@@ -3,7 +3,7 @@
  *                                                                   *
  * Author: Vitor Henrique Andrade Helfensteller Straggiotti Silva    *
  * Created on: 28/05/2021 (DD/MM/YYYY)                               *
- * Version: 1.0.0  ([major].[minor].[bugs])
+ * Version: 1.1.0  ([major].[minor].[bugs])
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef __BITMAP_H__
@@ -228,22 +228,38 @@ typedef struct img					img_t;
  *                                  FUNCTIONS                                  *
  *******************************************************************************/
 
-//------------------------------------------------------------------------------
-/* Create BMP image file (header used: BITMAPINFOHEADER (V1)) [OK]
+/* Create BMP image file (header used: BITMAPINFOHEADER (V1))			[OK]
    Return -1 if fail and 0 on success */
 int save_BMP(img_t *Img, const char *Filename);
-//------------------------------------------------------------------------------
-/* Read BMP image to a pixel matrix [OK]
+
+
+/* Read BMP image to a pixel matrix. 									[OK]
    Return NULL if fail */
 img_t *read_BMP(const char *Filename);
-//------------------------------------------------------------------------------
-//Create new empty image with given size
+
+
+/* Create new empty image with given size. 								[OK]
+   Return NULL if fail */
 img_t *new_BMP(int32_t Width, int32_t Height);
-//------------------------------------------------------------------------------
-//Display header information
+
+
+/* Create new empty image with same size as given image. 				[OK]
+   Return NULL if fail */
+img_t *new_BMP_as_size(img_t *OriginalImage);
+
+
+/* Create a copy of given image. 										[OK]
+   Return NULL if fail */
+img_t *copy_BMP(img_t *OriginalImage);
+
+
+/* Display header information. 											[OK]
+   Does not return anything */
 void display_header(const char *Filename);
-//------------------------------------------------------------------------------
-//Frees space occupied by PixelMatrix
+
+
+/* Frees space occupied by PixelMatrix. 								[OK]
+   Does not return anything */
 void free_img(img_t *Img);
 
 
