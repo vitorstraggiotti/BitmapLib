@@ -11,12 +11,6 @@
 
 #include <stdint.h>
 
-/*******************************************************************************
- *                            MACROS AND TYPEDEF                               *
- *******************************************************************************/
- 
-//========================================= IMAGE FILE MANIPULATION ============
-
 //Sizes of bitmap headers in bytes
 #define BITMAP_V1_INFOHEADER	40
 #define BITMAP_V2_INFOHEADER	52
@@ -197,10 +191,19 @@ struct bmp_headerV5
 
 struct img
 {
-	//Dimensions
-	int32_t Width;
-	int32_t Height;
-	struct pixel_24bpp **Pixel24;
+	/* Image dimensions */
+	int32_t	Width;
+	int32_t	Height;
+
+	/* Pixel map */
+	struct	pixel_24bpp **Pixel24;	/* 3 channels with 8 bits (RGB) */
+	uint8_t	**Pixel8;				/* 1 channel with 8 bits (Grayscale) */
+};
+
+enum img_type
+{
+	RGB_24BITS,
+	GREY_8BITS
 };
 
 //bmp_headerV1_t ==> BITMAPINFOHEADER	(40 bytes)
@@ -228,39 +231,43 @@ typedef struct img					img_t;
  *                                  FUNCTIONS                                  *
  *******************************************************************************/
 
-/* Create BMP image file (header used: BITMAPINFOHEADER (V1))			[OK]
+/* Create BMP image file (header used: BITMAPINFOHEADER (V1))			[]
    Return -1 if fail and 0 on success */
 int save_BMP(img_t *Img, const char *Filename);
 
 
-/* Read BMP image to a pixel matrix. 									[OK]
+/* Read BMP image to a pixel matrix. 									[]
    Return NULL if fail */
 img_t *read_BMP(const char *Filename);
 
 
-/* Create new empty image with given size. 								[OK]
-   Return NULL if fail */
-img_t *new_BMP(int32_t Width, int32_t Height);
+/* Create new empty image with given size. 								[]
+   Return NULL if fail.
+   Type --> RGB_24BITS
+            GREY_8BITS */
+img_t *new_BMP(int32_t Width, int32_t Height, int Type);
 
 
-/* Create new empty image with same size as given image. 				[OK]
-   Return NULL if fail */
-img_t *new_BMP_as_size(img_t *OriginalImage);
+/* Create new empty image with same size as given image. 				[]
+   Return NULL if fail.
+   Type --> RGB_24BITS
+            GREY_8BITS */
+img_t *new_BMP_as_size(img_t *OriginalImage, int Type);
 
 
-/* Create a copy of given image. 										[OK]
+/* Create a copy of given image. 										[]
    Return NULL if fail */
 img_t *copy_BMP(img_t *OriginalImage);
+
+
+/* Frees space occupied by PixelMatrix. 								[]
+   Does not return anything */
+void free_img(img_t *Img);
 
 
 /* Display header information. 											[OK]
    Does not return anything */
 void display_header(const char *Filename);
-
-
-/* Frees space occupied by PixelMatrix. 								[OK]
-   Does not return anything */
-void free_img(img_t *Img);
 
 
 #endif
