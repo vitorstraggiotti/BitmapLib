@@ -36,4 +36,4 @@ bitmap_d.o: bitmap.c
 	$(CC) $(D_CFLAGS) -o $@ $^
 
 clean:
-	rm test testGDB *.o saida*
+	rm test testGDB *.o out*
