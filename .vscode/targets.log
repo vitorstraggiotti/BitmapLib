@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Jun 24 13:54:52 2022
+# Make data base, printed on Fri Jul  1 08:17:43 2022
 
 # Variables
 
@@ -17,11 +17,11 @@ LC_ALL = C
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-db0e4ceb-7a5d-45f4-acf6-e7246d98588a.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-c7feecd6-5b17-4e2e-96a3-360707c71113.sock
 # environment
 VSCODE_CWD = /home/vitor
 # environment
-WINDOWPATH = 3
+WINDOWPATH = 2
 # environment
 NVM_DIR = /home/hitman/.nvm
 # environment
@@ -55,6 +55,7 @@ VSCODE_CODE_CACHE_PATH = /home/vitor/.config/Code/CachedData/30d9c6cd9483b2cc586
 # environment
 LANG = C
 # environment
+ 
 XAUTHORITY = /run/user/1000/gdm/Xauthority
 # default
 .LOADED := 
@@ -89,13 +90,13 @@ MAKEFILE_LIST := Makefile
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 130188
+VSCODE_PID = 75721
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/MainDebianVitor:@/tmp/.ICE-unix/63638,unix/MainDebianVitor:/tmp/.ICE-unix/63638
+SESSION_MANAGER = local/MainDebianVitor:@/tmp/.ICE-unix/1474,unix/MainDebianVitor:/tmp/.ICE-unix/1474
 # automatic
 *F = $(notdir $*)
 # environment
@@ -122,8 +123,6 @@ GJS_DEBUG_TOPICS = JS ERROR;JS LOG
 SHLVL = 0
 # environment
 MAKELEVEL := 0
-# environment
-IM_CONFIG_CHECK_ENV = 1
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
@@ -135,7 +134,7 @@ LANGUAGE = en_US:en
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = 02a8adcb715d4eb4adda66aa1cefba8d
+INVOCATION_ID = aa1c02792dcb4ef49157a23ea8955c96
 # environment
 VSCODE_LOG_NATIVE = false
 # environment
@@ -171,13 +170,13 @@ GTK_MODULES = gail:atk-bridge
 # default
 MAKE_VERSION := 4.3
 # environment
-MANAGERPID = 1278
+MANAGERPID = 1248
 # makefile (from 'Makefile', line 7)
 PROGNAME = test
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 130188
+GIO_LAUNCHED_DESKTOP_FILE_PID = 75721
 # environment
-SSH_AGENT_PID = 1467
+SSH_AGENT_PID = 1433
 # environment
 _ = /usr/share/code/code
 # environment
@@ -189,7 +188,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # makefile (from 'Makefile', line 4)
 D_CFLAGS = -Wall -pedantic -g -c
 # environment
-JOURNAL_STREAM = 8:9932697
+JOURNAL_STREAM = 8:22662
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -219,7 +218,7 @@ XDG_MENU_PREFIX = gnome-
 # environment
 GDMSESSION = gnome
 # variable set hash-table stats:
-# Load=104/1024=10%, Rehash=0, Collisions=4/137=3%
+# Load=103/1024=10%, Rehash=0, Collisions=4/136=3%
 
 # Pattern-specific Variable Values
 
@@ -279,7 +278,6 @@ bitmap.c:
 #  Modification time never checked.
 #  File has not been updated.
 
- 
 # Not a target:
 .DEFAULT:
 #  Implicit rule search has not been done.
@@ -324,6 +322,7 @@ testGDB: bitmap_d.o test_d.o
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 30):
 	$(CC) -o $@ $^ $(CLIBS)
+ 
 
 test: bitmap.o test.o
 #  Implicit rule search has not been done.
@@ -372,6 +371,6 @@ bitmap.o: bitmap.c
 # strcache performance: lookups = 50 / hit rate = 50%
 # hash-table stats:
 # Load=25/8192=0%, Rehash=0, Collisions=0/50=0%
-# Finished Make data base on Fri Jun 24 13:54:52 2022
+# Finished Make data base on Fri Jul  1 08:17:43 2022
 
  

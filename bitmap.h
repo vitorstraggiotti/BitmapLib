@@ -208,8 +208,8 @@ enum img_type
 
 enum color_depth
 {
-    DEPTH24,
-    DEPTH8
+    DEPTH24 = 24,
+    DEPTH8 = 8
 };
 
 //bmp_headerV1_t ==> BITMAPINFOHEADER   (40 bytes)
@@ -242,48 +242,80 @@ typedef struct img                  img_t;
  *   
  * Img        --> [Input]: pointer to image struct to be saved
  * Filename   --> [Input]: pointer to array of char that will be the name of saved image
+ *
+ * Return -1 if fail and 0 on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int save_BMP(img_t *Img, const char *Filename);
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Create BMP image file (header used: BITMAPINFOHEADER (V1))
+ * 
+ * Filename   --> [Input]: pointer to array of char that will be the name of saved imag
+ *
+ * Return NULL if fail or pointer to image structure on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+img_t *read_BMP(const char *Filename);
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Create new blank image struct (all pixels are 0)
+ * 
+ * Width      --> [Input]: image width in pixels
+ * Height     --> [Input]: image height in pixels
  * ColorDepth --> [Input]: integer from enummeration tha especifies the color depth:
  *                         (0) DEPTH24 ==> Set 24 bits per pixel
  *                         (1) SEPTH8  ==> Set 8 bits per pixel
  *
- * Return -1 if fail and 0 on success
+ * Return NULL if fail or pointer to image structure on success
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int save_BMP(img_t *Img, const char *Filename, int32_t ColorDepth);
+img_t *new_BMP(int32_t Width, int32_t Height, int32_t ColorDepth);
 
 
-/* Read BMP image to a pixel matrix.                                    [OK]
-   Return NULL if fail */
-img_t *read_BMP(const char *Filename);
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Create new blank image struct (all pixels are 0)
+ * 
+ * OriginalImmmage --> [Input]: pointer to image struct to use as reference to create
+ *                              new blank image struct with samme spacial resolution
+ * ColorDepth      --> [Input]: integer from enummeration tha especifies the color depth:
+ *                              DEPTH24 ==> Set 24 bits per pixel
+ *                              SEPTH8  ==> Set 8 bits per pixel
+ *
+ * Return NULL if fail or pointer to image structure on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+img_t *new_BMP_as_size(img_t *OriginalImage, int32_t ColorDepth);
 
 
-/* Create new empty image with given size.                              [OK]
-   Return NULL if fail.
-   Type --> RGB_24BITS
-            GREY_8BITS */
-img_t *new_BMP(int32_t Width, int32_t Height, int Type);
-
-
-/* Create new empty image with same size as given image.                [OK]
-   Return NULL if fail.
-   Type --> RGB_24BITS
-            GREY_8BITS */
-img_t *new_BMP_as_size(img_t *OriginalImage, int Type);
-
-
-/* Create a copy of given image.                                        [OK]
-   Return NULL if fail */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Create a copy of the original image struct 
+ * 
+ * OriginalImmmage --> [Input]: pointer to image struct to be copied
+ *
+ * Return NULL if fail or pointer to image structure on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 img_t *copy_BMP(img_t *OriginalImage);
 
 
-/* Frees space occupied by the image.                               [OK]
-   Does not return anything */
-void free_img(img_t *Img);
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Deallocate the image struct 
+ * 
+ * Img --> [Input]: pointer to image struct to be deallocated
+ *
+ * Return -1 if fail or 0 on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int free_img(img_t *Img);
 
 
-/* Display header information.                                          [OK]
-   Does not return anything */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Display header information of .bpm iage file
+ * 
+ * Filename --> [Input]: pointer to string containing the namme of the file
+ *                       to display info about.
+ *
+ * Does not return anything
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void display_header(const char *Filename);
 
 
-#endif
+#endif /* __BITMAP_H__ */
 

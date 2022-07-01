@@ -36,22 +36,22 @@ static inline int args_for_save_BMP_is_not_valid(img_t *Img, const char *Filenam
 {
     if((Img == NULL) || (Filename == NULL))
     {
-        printf("Error: [save_BMP()] --> Invalid arguments.\n\n");
+        printf("Error: [args_for_save_BMP_is_not_valid()] --> Invalid arguments.\n");
         return 1;
     }
     else if((Img->Pixel24 == NULL) && (Img->Pixel8 == NULL))
     {
-        printf("Error: [save_BMP()] --> Image argument is empty.\n\n");
+        printf("Error: [args_for_save_BMP_is_not_valid()] --> Image argument is empty.\n");
         return 1;
     }
     else if((Img->Width > 20000)||(Img->Height > 20000))
     {
-        printf("Error: [save_BMP()] --> Dimensions too big. Limit: 20000 x 20000.\n\n");
+        printf("Error: [args_for_save_BMP_is_not_valid()] --> Dimensions too big. Limit: 20000 x 20000.\n");
         return 1;
     }
     else if((Img->Width < 2)||(Img->Height < 2))
     {
-        printf("Error: [save_BMP()] --> Dimensions too small. Limit: 2 x 2.\n\n");
+        printf("Error: [args_for_save_BMP_is_not_valid()] --> Dimensions too small. Limit: 2 x 2.\n");
         return 1;
     }
     else
@@ -92,7 +92,7 @@ static inline int write_pixel_matrix_to_file(img_t * Img, int32_t ColorDepth,\
             break;
 
         default:
-            printf("Error: [write_pixel_matrix_to_file()] --> Invalid color depth");
+            printf("Error: [write_pixel_matrix_to_file()] --> Invalid color depth.\n");
             return -1;
     }
 
@@ -106,7 +106,7 @@ static inline int write_pixel_matrix_to_file(img_t * Img, int32_t ColorDepth,\
                 case DEPTH24:
                     if (fwrite(&Img->Pixel24[row][column], sizeof(pixel24_t), 1, ImageFile) != 1)
                     {
-                        printf("Error: [save_BMP()] --> Could not write pixel to file.\nn");
+                        printf("Error: [write_pixel_matrix_to_file()] --> Could not write pixel to file.\n");
                         return -1;
                     }
                     break;
@@ -114,13 +114,13 @@ static inline int write_pixel_matrix_to_file(img_t * Img, int32_t ColorDepth,\
                 case DEPTH8:
                     if (fwrite(&Img->Pixel8[row][column], sizeof(uint8_t), 1, ImageFile) != 1)
                     {
-                        printf("Error: [save_BMP()] --> Could not write pixel to file.\nn");
+                        printf("Error: [write_pixel_matrix_to_file()] --> Could not write pixel to file.\n");
                         return -1;
                     }
                     break;
 
                 default:
-                    printf("Error: [write_pixel_matrix_to_file()] --> Invalid color depth");
+                    printf("Error: [write_pixel_matrix_to_file()] --> Invalid color depth\n");
                     return -1;
             }
 
@@ -136,7 +136,7 @@ static inline int write_pixel_matrix_to_file(img_t * Img, int32_t ColorDepth,\
                     case 1:
                         if(fwrite(&ByteZero, sizeof(uint8_t), 3, ImageFile) != 1)
                         {
-                            printf("Error: [save_BMP()] --> Could not write padding to file.\n\n");
+                            printf("Error: [write_pixel_matrix_to_file()] --> Could not write padding to file.\n");
                             return -1;
                         }
                         break;
@@ -144,7 +144,7 @@ static inline int write_pixel_matrix_to_file(img_t * Img, int32_t ColorDepth,\
                     case 2:
                         if (fwrite(&ByteZero, sizeof(uint8_t), 2, ImageFile) != 1)
                         {
-                            printf("Error: [save_BMP()] --> Could not write padding to file.\n\n");
+                            printf("Error: [write_pixel_matrix_to_file()] --> Could not write padding to file.\n");
                             return -1;
                         }
                         break;
@@ -152,13 +152,13 @@ static inline int write_pixel_matrix_to_file(img_t * Img, int32_t ColorDepth,\
                     case 3:
                         if (fwrite(&ByteZero, sizeof(uint8_t), 1, ImageFile) != 1)
                         {
-                            printf("Error: [save_BMP()] --> Could not write padding to file.\n\n");
+                            printf("Error: [write_pixel_matrix_to_file()] --> Could not write padding to file.\n");
                             return -1;
                         }
                         break;
                     
                     default:
-                        printf("Error: [write_pixel_matrix_to_file()] --> Invalid \"TotalWidthMod4\"");
+                        printf("Error: [write_pixel_matrix_to_file()] --> Invalid \"TotalWidthMod4\"\n");
                         return -1;
                 } /* end padding switch */
             } /* last column if */
@@ -185,12 +185,12 @@ static inline int write_headers_to_file(file_header_t * FileHeader,\
 {
     if(fwrite(FileHeader, sizeof(file_header_t), 1, ImageFile) != 1)
     {
-        printf("Error: [save_BMP()] --> Could not write \"File Header\" to file.\n\n");
+        printf("Error: [write_headers_to_file()] --> Could not write \"File Header\" to file.\n");
         return -1;
     }
     if(fwrite(BMPHeaderV1, sizeof(bmp_headerV1_t), 1, ImageFile) != 1)
     {
-        printf("Error: [save_BMP()] --> Could not write \"BMP Header\" to file.\n\n");
+        printf("Error: [write_headers_to_file()] --> Could not write \"BMP Header\" to file.\n");
         return -1;
     }
 
@@ -210,6 +210,8 @@ static inline int write_headers_to_file(file_header_t * FileHeader,\
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDepth, img_t * Img)
 {
+    uint8_t Trash;
+    
     /* Allocate space for pixel matrix */
     switch (ColorDepth)
     {
@@ -218,7 +220,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
             Img->Pixel24 = malloc(Img->Height * sizeof(pixel24_t*));
             if (Img->Pixel24 == NULL)
             {
-                printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (rows; 24bpp)");
+                printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (rows; 24bpp)\n");
                 return -1;
             }
 
@@ -227,10 +229,52 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                 Img->Pixel24[Row] = malloc(Img->Width * sizeof(pixel24_t));
                 if (Img->Pixel24[Row] == NULL)
                 {
-                    printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (columns; 24bpp)");
+                    printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (columns; 24bpp)\n");
                     return -1;
                 }
             }
+    
+            /* Reading image and copying to pixel matrix */
+            for(int32_t Row = 0; Row < Img->Height; Row++)
+            {
+                for(int32_t Column = 0; Column < Img->Width; Column++)
+                {
+                    if(fread(&Img->Pixel24[Row][Column], sizeof(pixel24_t), 1, ImageFile) != 1)
+                    {
+                        printf("Error: [read_pixel_matrix_from_file()] --> Could not read pixel values from file. (24bpp)\n");
+                        return NULL;
+                    }
+                    
+                    if(Column == (Img->Width - 1))
+                    {
+                        if(((Img->Width * 3) % 4) == 1)
+                        {
+                            if(fread(&Trash, sizeof(uint8_t), 3, ImageFile) != 3)
+                            {
+                                printf("Error: [read_pixel_mmatrix_from_file()] --> Could not read 3 padding bytes. (24bpp)\n");
+                                return NULL;
+                            }
+                            
+                        }else if(((Img->Width * 3) % 4) == 2)
+                        {
+                            if(fread(&Trash, sizeof(uint8_t), 2, ImageFile) != 2)
+                            {
+                                printf("Error: [read_pixel_mmatrix_from_file()] --> Could not read 2 padding bytes. (24bpp)\n");
+                                return NULL;
+                            }
+                            
+                        }else if(((Img->Width * 3) % 4) == 3)
+                        {
+                            if(fread(&Trash, sizeof(uint8_t), 1, ImageFile) != 1)
+                            {
+                                printf("Error: [read_pixel_mmatrix_from_file()] --> Could not read 1 padding byte. (24bpp)\n");
+                                return NULL;
+                            }
+                        }
+                    }
+                }
+            }
+
             break;
 
         case DEPTH8:
@@ -238,7 +282,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
             Img->Pixel8 = malloc(Img->Height * sizeof(uint8_t*));
             if (Img->Pixel8 == NULL)
             {
-                printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (rows; 8bpp)");
+                printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (rows; 8bpp)\n");
                 return -1;
             }
 
@@ -247,59 +291,60 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                 Img->Pixel8[Row] = malloc(Img->Width * sizeof(uint8_t));
                 if (Img->Pixel8[Row] == NULL)
                 {
-                    printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (columns; 8bpp)");
+                    printf("Error: [read_pixel_matrix_from_file()] --> Could not allocate memory for pixel matrix (columns; 8bpp)\n");
                     return -1;
                 }
             }
-            break;
-        
-        default:
-    }
-    
-# if 0    
-    
-    /* Reading image and copying to pixel matrix */
-    for(int32_t Row = 0; Row < Img->Height; Row++)
-    {
-        for(int32_t Column = 0; Column < Img->Width; Column++)
-        {
-            if(fread(&Img->Pixel24[Row][Column], sizeof(pixel24_t), 1, ImageFile) != 1)
+
+            /* Reading image and copying to pixel matrix */
+            for(int32_t Row = 0; Row < Img->Height; Row++)
             {
-                printf("Error: [read_BMP()] --> Could not read pixel values from file.\n\n");
-                return NULL;
-            }
-            
-            if(Column == (Img->Width - 1))
-            {
-                if(((Img->Width * 3) % 4) == 1)
+                for(int32_t Column = 0; Column < Img->Width; Column++)
                 {
-                    if(fread(&Trash, sizeof(uint8_t), 3, ImageFile) != 3)
+                    if(fread(&Img->Pixel8[Row][Column], sizeof(uint8_t), 1, ImageFile) != 1)
                     {
-                        printf("Error: [read_BMP()] --> Could not read 3 padding bytes.\n\n");
+                        printf("Error: [read_pixel_matrix_from_file()] --> Could not read pixel values from file.\n");
                         return NULL;
                     }
                     
-                }else if(((Img->Width * 3) % 4) == 2)
-                {
-                    if(fread(&Trash, sizeof(uint8_t), 2, ImageFile) != 2)
+                    if(Column == (Img->Width - 1))
                     {
-                        printf("Error: [read_BMP()] --> Could not read 2 padding bytes.\n\n");
-                        return NULL;
-                    }
-                    
-                }else if(((Img->Width * 3) % 4) == 3)
-                {
-                    if(fread(&Trash, sizeof(uint8_t), 1, ImageFile) != 1)
-                    {
-                        printf("Error: [read_BMP()] --> Could not read 1 padding byte.\n\n");
-                        return NULL;
+                        if(((Img->Width * 3) % 4) == 1)
+                        {
+                            if(fread(&Trash, sizeof(uint8_t), 3, ImageFile) != 3)
+                            {
+                                printf("Error: [read_pixel_matrix_from_file()] --> Could not read 3 padding bytes.\n");
+                                return NULL;
+                            }
+                            
+                        }else if(((Img->Width * 3) % 4) == 2)
+                        {
+                            if(fread(&Trash, sizeof(uint8_t), 2, ImageFile) != 2)
+                            {
+                                printf("Error: [read_pixel_matrix_from_file()] --> Could not read 2 padding bytes.\n");
+                                return NULL;
+                            }
+                            
+                        }else if(((Img->Width * 3) % 4) == 3)
+                        {
+                            if(fread(&Trash, sizeof(uint8_t), 1, ImageFile) != 1)
+                            {
+                                printf("Error: [read_pixel_matrix_from_file()] --> Could not read 1 padding byte.\n");
+                                return NULL;
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-#endif
 
+            break;
+        
+        default:
+            printf("Error: [read_pixel_matrix_from_file()] --> Invalid Color depth\n");
+            return -1;
+    }
+
+    return 0;
 }
 
 
@@ -312,25 +357,39 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
  *   
  * Img        --> [Input]: pointer to image struct to be saved
  * Filename   --> [Input]: pointer to array of char that will be the name of saved image
- * ColorDepth --> [Input]: integer from enummeration tha especifies the color depth:
- *                         (0) DEPTH24 ==> Set 24 bits per pixel
- *                         (1) SEPTH8  ==> Set 8 bits per pixel
  *
  * Return -1 if fail and 0 on success
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int save_BMP(img_t *Img, const char *Filename, int32_t ColorDepth)
+int save_BMP(img_t *Img, const char *Filename)
 {
     file_header_t   FileHeader;
     bmp_headerV1_t  BMPHeaderV1;
     uint8_t         ByteZero = 0;
     int32_t         SizeWidthByte;
     int32_t         TotalWidthMod4;
+    int32_t         ColorDepth = 0;
 
     /* Validate arguments */
     if (args_for_save_BMP_is_not_valid(Img, Filename))
     {
         return -1;
     }
+
+    /* Acquire color depth */
+    if ((Img->Pixel24 != NULL) && (Img->Pixel8 == NULL))
+    {
+        ColorDepth = DEPTH24;
+    }
+    else if ((Img->Pixel8 != NULL) && (Img->Pixel24 == NULL))
+    {
+        ColorDepth = DEPTH8;
+    }
+    else
+    {
+        printf("Error: [save_BMP()] --> Failed color depth validation.\n");
+        return -1;
+    }
+    
 
     FileHeader.CharID_1 = 0x42;
     FileHeader.CharID_2 = 0x4D;
@@ -367,7 +426,7 @@ int save_BMP(img_t *Img, const char *Filename, int32_t ColorDepth)
                 SizeWidthByte = SizeWidthByte + 4 - TotalWidthMod4;
             }
             
-            BMPHeaderV1.ColorDepth = 24;       /* Bits per pixel */
+            BMPHeaderV1.ColorDepth = DEPTH24;       /* Bits per pixel */
             BMPHeaderV1.NumColorsInTable = 0;  /* Number of colors used in color table */
             BMPHeaderV1.NumImportantColors = 0;
             BMPHeaderV1.SizePixelMatrix = SizeWidthByte * Img->Height;
@@ -419,7 +478,7 @@ int save_BMP(img_t *Img, const char *Filename, int32_t ColorDepth)
                 SizeWidthByte = SizeWidthByte + 4 - TotalWidthMod4;
             }
             
-            BMPHeaderV1.ColorDepth = 8;        /* Bits per pixel */
+            BMPHeaderV1.ColorDepth = DEPTH8;        /* Bits per pixel */
             BMPHeaderV1.NumColorsInTable = 0;  /* Number of colors used in color table */
             BMPHeaderV1.NumImportantColors = 0;
             BMPHeaderV1.SizePixelMatrix = SizeWidthByte * Img->Height;
@@ -461,9 +520,14 @@ int save_BMP(img_t *Img, const char *Filename, int32_t ColorDepth)
     return 0;
 }
 
-/******************************************************************************/
-/* Read BMP image to a pixel matrix
-   Return NULL if fail */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Read BMP image file into image struct
+ * 
+ * Filename   --> [Input]: pointer to array of char that will be the name of saved imag
+ *
+ * Return NULL if fail or pointer to image structure on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 img_t *read_BMP(const char *Filename)
 {
     file_header_t   FileHeader;
@@ -473,7 +537,7 @@ img_t *read_BMP(const char *Filename)
     bmp_headerV4_t  BMPHeaderV4;
     bmp_headerV5_t  BMPHeaderV5;
 
-    uint8_t         Trash;
+    int32_t ColorDepth;
 
     img_t           *Img;
     FILE            *ImageFile;
@@ -482,88 +546,93 @@ img_t *read_BMP(const char *Filename)
     Img = malloc(sizeof(img_t));
     if (Img == NULL)
     {
-        printf("Error: [read_BMP()] --> Could not allocate memory for image struct");
+        printf("Error: [read_BMP()] --> Could not allocate memory for image struct.\n");
         return NULL;
     }
+    /* Initialise image struct */
+    Img->Height = 0;
+    Img->Width = 0;
+    Img->Pixel24 = NULL;
+    Img->Pixel8 = NULL;
     
     /* Open image */
     ImageFile = fopen(Filename, "rb");
     if(ImageFile == NULL)
     {
-        printf("Error: [read_BMP()] --> Could not open file for pixel matrix extraction.\n\n");
+        printf("Error: [read_BMP()] --> Could not open file for pixel matrix extraction.\n");
         return NULL;
     }
     
     /* Acquire file header and verify if valid */
     if(fread(&FileHeader, sizeof(file_header_t), 1, ImageFile) != 1)
     {
-        printf("Error: [read_BMP()] --> Could not read \"File Header\".\n\n");
+        printf("Error: [read_BMP()] --> Could not read \"File Header\".\n");
         return NULL;
     }
     
     if((FileHeader.CharID_1 != 0x42) || (FileHeader.CharID_2 != 0x4D))
     {
-        printf("Error: [read_BMP()] --> Input file was not recognized as a BMP image.\n\n");
+        printf("Error: [read_BMP()] --> Input file was not recognized as a BMP image.\n");
         return NULL;
     }
-
-    /*============================== Temporary adjustment =======================*/
-    /*                CRAP IMPLEMENTATION !! FIX AS SOON AS POSSIBLE !!!         */
-    /* Improvising as 8-bit image acquisition has not yet been implemented */
-    Img->Pixel8 = NULL;
-    /*============================================================================*/
     
+
     /* Finding out BMP header version and reading it */
     switch(FileHeader.OffsetPixelMatrix - sizeof(file_header_t))
     {
         case BITMAP_V1_INFOHEADER :
             if(fread(&BMPHeaderV1, sizeof(bmp_headerV1_t), 1, ImageFile) != 1)
             {
-                printf("Error: [read_BMP()] --> Could not read \"Header V1\".\n\n");
+                printf("Error: [read_BMP()] --> Could not read \"Header V1\".\n");
                 return NULL;
             }
             Img->Width = BMPHeaderV1.Width;
             Img->Height = BMPHeaderV1.Height;
+            ColorDepth = BMPHeaderV1.ColorDepth;
             break;
             
         case BITMAP_V2_INFOHEADER :
             if(fread(&BMPHeaderV2, sizeof(bmp_headerV2_t), 1, ImageFile) != 1)
             {
-                printf("Error: [read_BMP()] --> Could not read \"Header V2\". \n\n");
+                printf("Error: [read_BMP()] --> Could not read \"Header V2\". \n");
                 return NULL;
             }
             Img->Width = BMPHeaderV2.Width;
             Img->Height = BMPHeaderV2.Height;
+            ColorDepth = BMPHeaderV2.ColorDepth;
             break;
         
         case BITMAP_V3_INFOHEADER :
             if(fread(&BMPHeaderV3, sizeof(bmp_headerV3_t), 1, ImageFile) != 1)
             {
-                printf("Error: [read_BMP()] --> Could not read \"Header V3\".\n\n");
+                printf("Error: [read_BMP()] --> Could not read \"Header V3\".\n");
                 return NULL;
             }
             Img->Width = BMPHeaderV3.Width;
             Img->Height = BMPHeaderV3.Height;
+            ColorDepth = BMPHeaderV3.ColorDepth;
             break;
         
         case BITMAP_V4_INFOHEADER :
             if(fread(&BMPHeaderV4, sizeof(bmp_headerV4_t), 1, ImageFile) != 1)
             {
-                printf("Error: [read_BMP()] --> Could not read \"Header V4\".\n\n");
+                printf("Error: [read_BMP()] --> Could not read \"Header V4\".\n");
                 return NULL;
             }
             Img->Width = BMPHeaderV4.Width;
             Img->Height = BMPHeaderV4.Height;
+            ColorDepth = BMPHeaderV4.ColorDepth;
             break;
             
         case BITMAP_V5_INFOHEADER :
             if(fread(&BMPHeaderV5, sizeof(bmp_headerV5_t), 1, ImageFile) != 1)
             {
-                printf("Error: [read_BMP()] --> Could not read \"Header V5\".\n\n");
+                printf("Error: [read_BMP()] --> Could not read \"Header V5\".\n");
                 return NULL;
             }
             Img->Width = BMPHeaderV5.Width;
             Img->Height = BMPHeaderV5.Height;
+            ColorDepth = BMPHeaderV5.ColorDepth;
             break;
             
         default :
@@ -575,25 +644,37 @@ img_t *read_BMP(const char *Filename)
             printf("       - BITMAPV5HEADER      (V5)\n");
             return NULL;
     }
-        
-# error implement read
+
+    if (read_pixel_matrix_from_file(ImageFile, ColorDepth, Img) == -1)
+    {
+        printf("Error: [read_BMP()] --> \"read_pixel_matrix_from_file()\" failed.\n");
+        return NULL;
+    }
     
     fclose(ImageFile);
     
     return Img;
 }
-/******************************************************************************/
-/* Create new empty image with given size.
-   Return NULL if fail.
-   Type --> RGB_24BITS
-            GREY_8BITS */
-img_t *new_BMP(int32_t Width, int32_t Height, int Type)
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Create new blank image struct (all pixels are 0)
+ * 
+ * Width      --> [Input]: image width in pixels
+ * Height     --> [Input]: image height in pixels
+ * ColorDepth --> [Input]: integer from enummeration tha especifies the color depth:
+ *                         DEPTH24 ==> Set 24 bits per pixel
+ *                         SEPTH8  ==> Set 8 bits per pixel
+ *
+ * Return NULL if fail or pointer to image structure on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+img_t *new_BMP(int32_t Width, int32_t Height, int32_t ColorDepth)
 {
     img_t   *BlankImg = NULL;
 
-    switch(Type)
+    switch(ColorDepth)
     {
-        case RGB_24BITS:
+        case DEPTH24:
 
             BlankImg = (img_t *)malloc(sizeof(img_t));
 
@@ -603,14 +684,20 @@ img_t *new_BMP(int32_t Width, int32_t Height, int Type)
             BlankImg->Pixel8 = NULL;
 
             BlankImg->Pixel24 = (pixel24_t **)malloc(Height * sizeof(pixel24_t *));
-            if(BlankImg->Pixel24 == NULL)
+            if (BlankImg->Pixel24 == NULL)
+            {
+                printf("Error: [new_BMP()] --> Could not allocate memory. (row; 24bpp)\n");
                 return NULL;
+            }
 
             for(int32_t Row = 0; Row < Height; Row++)
             {
                 BlankImg->Pixel24[Row] = (pixel24_t *)malloc(Width * sizeof(pixel24_t));
                 if(BlankImg->Pixel24[Row] == NULL)
+                {
+                    printf("Error: [new_BMP()] --> Could not allocate memmory. (column; 24bpp)\n");
                     return NULL;
+                }
 
                 for(int32_t Column = 0; Column < Width; Column++)
                 {
@@ -621,7 +708,7 @@ img_t *new_BMP(int32_t Width, int32_t Height, int Type)
             }
             break;
 
-        case GREY_8BITS:
+        case DEPTH8:
 
             BlankImg = (img_t *)malloc(sizeof(img_t));
 
@@ -631,14 +718,20 @@ img_t *new_BMP(int32_t Width, int32_t Height, int Type)
             BlankImg->Pixel24 = NULL;
 
             BlankImg->Pixel8 = (uint8_t **)malloc(Height * sizeof(uint8_t *));
-            if(BlankImg->Pixel8 == NULL)
+            if (BlankImg->Pixel8 == NULL)
+            {
+                printf("Error: [new_BMP()] --> Could not allocate memmory. (row; 8bpp)\n");
                 return NULL;
+            }
 
             for(int32_t Row = 0; Row < Height; Row++)
             {
                 BlankImg->Pixel8[Row] = (uint8_t *)malloc(Width * sizeof(uint8_t));
-                if(BlankImg->Pixel8[Row] == NULL)
+                if (BlankImg->Pixel8[Row] == NULL)
+                {
+                    printf("Error: [new_BMP()] --> Could not allocate mmemory. (column; 8bpp)\n");
                     return NULL;
+                }
 
                 for(int32_t Column = 0; Column < Width; Column++)
                 {
@@ -648,97 +741,166 @@ img_t *new_BMP(int32_t Width, int32_t Height, int Type)
             break;
 
         default:
-            printf("Error: [new_BMP()] --> Invalid image type.\n\n");
+            printf("Error: [new_BMP()] --> Invalid color depth.\n");
             return NULL;
     }
     
     return BlankImg;
 }
-/******************************************************************************/
-/* Create new empty image with same size as given image.
-   Return NULL if fail.
-   Type --> RGB_24BITS
-            GREY_8BITS */
-img_t *new_BMP_as_size(img_t *OriginalImage, int Type)
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Create new blank image struct (all pixels are 0) with the same spacial resolution
+ * as the original image
+ * 
+ * OriginalImmmage --> [Input]: pointer to image struct to use as reference to create
+ *                              new blank image struct with samme spacial resolution
+ * ColorDepth      --> [Input]: integer from enummeration tha especifies the color depth:
+ *                              DEPTH24 ==> Set 24 bits per pixel
+ *                              SEPTH8  ==> Set 8 bits per pixel
+ *
+ * Return NULL if fail or pointer to image structure on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+img_t *new_BMP_as_size(img_t *OriginalImage, int32_t ColorDepth)
 {
     img_t *BlankImage;
     
-    BlankImage = new_BMP(OriginalImage->Width, OriginalImage->Height, Type);
+    BlankImage = new_BMP(OriginalImage->Width, OriginalImage->Height, ColorDepth);
 
     return BlankImage;
-    
 }
-/******************************************************************************/
-/* Create a copy of given image.
-   Return NULL if fail */
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Create a copy of the original image struct 
+ * 
+ * OriginalImmmage --> [Input]: pointer to image struct to be copied
+ *
+ * Return NULL if fail or pointer to image structure on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 img_t *copy_BMP(img_t *OriginalImage)
 {
     img_t   *CopyImg;
+    uint8_t ColorDepth = 0;
 
-    if((OriginalImage == NULL) || ((OriginalImage->Pixel24 == NULL) && (OriginalImage->Pixel8 == NULL)))
+    /* Validate input */
+    if (OriginalImage == NULL)
+    {
+        printf("Error: [copy_BMP()] --> No input.\n");
         return NULL;
+    }
 
-    CopyImg = (img_t *)malloc(sizeof(img_t));
+    /* Validate and find color depth */
+    if ((OriginalImage->Pixel24 != NULL) && (OriginalImage->Pixel8 == NULL))
+    {
+        ColorDepth = DEPTH24;
+    }
+    else if ((OriginalImage->Pixel8 != NULL) && (OriginalImage->Pixel24 == NULL))
+    {
+        ColorDepth = DEPTH8;
+    }
+    else
+    {
+        printf("Error: [copy_BMP()] --> Invalid pointer cobination on image struct.\n");
+        return NULL;
+    }
     
-    CopyImg->Width = OriginalImage->Width;
+    /* Allocate image struct */
+    CopyImg = (img_t *) malloc(sizeof(img_t));
+    if (CopyImg == NULL)
+    {
+        printf("Error: [copy_BMP()] --> Could not allocate memory for image struct.\n");
+        return NULL;
+    }    
+
     CopyImg->Height = OriginalImage->Height;
+    CopyImg->Width = OriginalImage->Width;
+    CopyImg->Pixel24 = NULL;
+    CopyImg->Pixel8 = NULL;
 
-    if(OriginalImage->Pixel24 != NULL)
+    switch (ColorDepth)
     {
-        CopyImg->Pixel24 = (pixel24_t **)malloc(OriginalImage->Height * sizeof(pixel24_t *));
-        if(CopyImg->Pixel24 == NULL)
-            return NULL;
+        case DEPTH24:
 
-        for(int32_t Row = 0; Row < OriginalImage->Height; Row++)
-        {
-            CopyImg->Pixel24[Row] = (pixel24_t *)malloc(OriginalImage->Width * sizeof(pixel24_t));
-            if(CopyImg->Pixel24[Row] == NULL)
-                return NULL;
-
-            for(int32_t Column = 0; Column < OriginalImage->Width; Column++)
+            CopyImg->Pixel24 = (pixel24_t **) malloc(OriginalImage->Height * sizeof(pixel24_t *));
+            if (CopyImg->Pixel24 == NULL)
             {
-                CopyImg->Pixel24[Row][Column].Red = OriginalImage->Pixel24[Row][Column].Red;
-                CopyImg->Pixel24[Row][Column].Green = OriginalImage->Pixel24[Row][Column].Green;
-                CopyImg->Pixel24[Row][Column].Blue = OriginalImage->Pixel24[Row][Column].Blue;
-            }
-        }   
-    }
-    else
-    {
-        CopyImg->Pixel24 = NULL;
-    }
-    
-    if(OriginalImage->Pixel8 != NULL)
-    {
-        CopyImg->Pixel8 = (uint8_t **)malloc(OriginalImage->Height * sizeof(uint8_t *));
-        if(CopyImg->Pixel8 == NULL)
-            return NULL;
-
-        for(int32_t Row = 0; Row < OriginalImage->Height; Row++)
-        {
-            CopyImg->Pixel8[Row] = (uint8_t *)malloc(OriginalImage->Width * sizeof(uint8_t));
-            if(CopyImg->Pixel8[Row] == NULL)
+                printf("Error: [copy_BMP()] --> Could not allocate memory. (row; 24bpp)\n");
                 return NULL;
-
-            for(int32_t Column = 0; Column < OriginalImage->Width; Column++)
-            {
-                CopyImg->Pixel8[Row][Column] = OriginalImage->Pixel8[Row][Column];
             }
-        }
+
+            for (int32_t Row = 0; Row < OriginalImage->Height; Row++)
+            {
+                CopyImg->Pixel24[Row] = (pixel24_t *)malloc(OriginalImage->Width * sizeof(pixel24_t));
+                if (CopyImg->Pixel24[Row] == NULL)
+                {
+                    printf("Error: [copy_BMP()] --> Could not allocate memory. (column; 24bpp)\n");
+                    return NULL;
+                }
+
+                for (int32_t Column = 0; Column < OriginalImage->Width; Column++)
+                {
+                    CopyImg->Pixel24[Row][Column].Red   = OriginalImage->Pixel24[Row][Column].Red;
+                    CopyImg->Pixel24[Row][Column].Green = OriginalImage->Pixel24[Row][Column].Green;
+                    CopyImg->Pixel24[Row][Column].Blue  = OriginalImage->Pixel24[Row][Column].Blue;
+                }
+            }
+
+            break;
+        
+        case DEPTH8:
+
+            CopyImg->Pixel8 = (uint8_t **) malloc(OriginalImage->Height * sizeof(uint8_t *));
+            if (CopyImg->Pixel8 == NULL)
+            {
+                printf("Error: [copy_BMP()] --> Could not allocate memory. (row; 8bpp)\n");
+                return NULL;
+            }
+
+            for (int32_t Row = 0; Row < OriginalImage->Height; Row++)
+            {
+                CopyImg->Pixel8[Row] = (uint8_t *)malloc(OriginalImage->Width * sizeof(uint8_t));
+                if (CopyImg->Pixel8[Row] == NULL)
+                {
+                    printf("Error: [copy_BMP()] --> Could not allocate memory. (column; 8bpp)\n");
+                    return NULL;
+                }
+
+                for (int32_t Column = 0; Column < OriginalImage->Width; Column++)
+                {
+                    CopyImg->Pixel8[Row][Column].Red   = OriginalImage->Pixel8[Row][Column].Red;
+                    CopyImg->Pixel8[Row][Column].Green = OriginalImage->Pixel8[Row][Column].Green;
+                    CopyImg->Pixel8[Row][Column].Blue  = OriginalImage->Pixel8[Row][Column].Blue;
+                }
+            }
+
+            break;
+        
+        default:
+            printf("Error: [copy_BMP()] --> Invalid color depth.\n");
+            return NULL;
     }
-    else
-    {
-        CopyImg->Pixel8 = NULL;
-    }
-    
+
     return CopyImg;
 }
-/******************************************************************************/
-/* Frees space occupied by Image */
-void free_img(img_t *Img)
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Deallocate the image struct 
+ * 
+ * Img --> [Input]: pointer to image struct to be deallocated
+ *
+ * Return -1 if fail or 0 on success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int free_img(img_t *Img)
 {
+    uint8_t ColorDepth = 0;
+
     if(Img == NULL)
-        return;
+    {
+        printf("Error: [free_img()] --> No input.\n");
+        return -1;
+    }
 
     if(Img->Pixel24 != NULL)
     {
@@ -759,9 +921,19 @@ void free_img(img_t *Img)
     }
 
     free(Img);
+
+    return 0;
 }
-/******************************************************************************/
-/* Display image information present on header*/
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * Display header information of .bpm iage file
+ * 
+ * Filename --> [Input]: pointer to string containing the namme of the file
+ *                       to display info about.
+ *
+ * Does not return anything
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void display_header(const char *Filename)
 {       
     file_header_t FileHeader;
@@ -1244,18 +1416,3 @@ void display_header(const char *Filename)
     fclose(File);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
