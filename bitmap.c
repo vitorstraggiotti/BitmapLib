@@ -242,7 +242,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                     if(fread(&Img->Pixel24[Row][Column], sizeof(pixel24_t), 1, ImageFile) != 1)
                     {
                         printf("Error: [read_pixel_matrix_from_file()] --> Could not read pixel values from file. (24bpp)\n");
-                        return NULL;
+                        return -1;
                     }
                     
                     if(Column == (Img->Width - 1))
@@ -252,7 +252,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                             if(fread(&Trash, sizeof(uint8_t), 3, ImageFile) != 3)
                             {
                                 printf("Error: [read_pixel_mmatrix_from_file()] --> Could not read 3 padding bytes. (24bpp)\n");
-                                return NULL;
+                                return -1;
                             }
                             
                         }else if(((Img->Width * 3) % 4) == 2)
@@ -260,7 +260,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                             if(fread(&Trash, sizeof(uint8_t), 2, ImageFile) != 2)
                             {
                                 printf("Error: [read_pixel_mmatrix_from_file()] --> Could not read 2 padding bytes. (24bpp)\n");
-                                return NULL;
+                                return -1;
                             }
                             
                         }else if(((Img->Width * 3) % 4) == 3)
@@ -268,7 +268,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                             if(fread(&Trash, sizeof(uint8_t), 1, ImageFile) != 1)
                             {
                                 printf("Error: [read_pixel_mmatrix_from_file()] --> Could not read 1 padding byte. (24bpp)\n");
-                                return NULL;
+                                return -1;
                             }
                         }
                     }
@@ -304,7 +304,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                     if(fread(&Img->Pixel8[Row][Column], sizeof(uint8_t), 1, ImageFile) != 1)
                     {
                         printf("Error: [read_pixel_matrix_from_file()] --> Could not read pixel values from file.\n");
-                        return NULL;
+                        return -1;
                     }
                     
                     if(Column == (Img->Width - 1))
@@ -314,7 +314,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                             if(fread(&Trash, sizeof(uint8_t), 3, ImageFile) != 3)
                             {
                                 printf("Error: [read_pixel_matrix_from_file()] --> Could not read 3 padding bytes.\n");
-                                return NULL;
+                                return -1;
                             }
                             
                         }else if(((Img->Width * 3) % 4) == 2)
@@ -322,7 +322,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                             if(fread(&Trash, sizeof(uint8_t), 2, ImageFile) != 2)
                             {
                                 printf("Error: [read_pixel_matrix_from_file()] --> Could not read 2 padding bytes.\n");
-                                return NULL;
+                                return -1;
                             }
                             
                         }else if(((Img->Width * 3) % 4) == 3)
@@ -330,7 +330,7 @@ static inline int read_pixel_matrix_from_file(FILE * ImageFile, int32_t ColorDep
                             if(fread(&Trash, sizeof(uint8_t), 1, ImageFile) != 1)
                             {
                                 printf("Error: [read_pixel_matrix_from_file()] --> Could not read 1 padding byte.\n");
-                                return NULL;
+                                return -1;
                             }
                         }
                     }
@@ -364,10 +364,12 @@ int save_BMP(img_t *Img, const char *Filename)
 {
     file_header_t   FileHeader;
     bmp_headerV1_t  BMPHeaderV1;
-    uint8_t         ByteZero = 0;
+
     int32_t         SizeWidthByte;
     int32_t         TotalWidthMod4;
     int32_t         ColorDepth = 0;
+
+    FILE *ImageFile;
 
     /* Validate arguments */
     if (args_for_save_BMP_is_not_valid(Img, Filename))
@@ -434,9 +436,7 @@ int save_BMP(img_t *Img, const char *Filename)
             /* Finding total image file size */
             FileHeader.FileSize = 54 + BMPHeaderV1.SizePixelMatrix;
             
-            /* Opening image file */
-            FILE *ImageFile;
-            
+            /* Opening image file */            
             ImageFile = fopen(Filename, "wb");
             if(ImageFile == NULL)
             {
@@ -487,8 +487,6 @@ int save_BMP(img_t *Img, const char *Filename)
             FileHeader.FileSize = 54 + BMPHeaderV1.SizePixelMatrix;
             
             /* Opening image file */
-            FILE *ImageFile;
-            
             ImageFile = fopen(Filename, "wb");
             if(ImageFile == NULL)
             {
@@ -868,9 +866,7 @@ img_t *copy_BMP(img_t *OriginalImage)
 
                 for (int32_t Column = 0; Column < OriginalImage->Width; Column++)
                 {
-                    CopyImg->Pixel8[Row][Column].Red   = OriginalImage->Pixel8[Row][Column].Red;
-                    CopyImg->Pixel8[Row][Column].Green = OriginalImage->Pixel8[Row][Column].Green;
-                    CopyImg->Pixel8[Row][Column].Blue  = OriginalImage->Pixel8[Row][Column].Blue;
+                    CopyImg->Pixel8[Row][Column] = OriginalImage->Pixel8[Row][Column];
                 }
             }
 
@@ -894,8 +890,6 @@ img_t *copy_BMP(img_t *OriginalImage)
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 int free_img(img_t *Img)
 {
-    uint8_t ColorDepth = 0;
-
     if(Img == NULL)
     {
         printf("Error: [free_img()] --> No input.\n");

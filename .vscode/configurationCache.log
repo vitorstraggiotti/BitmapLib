@@ -1,1 +1,1 @@
-{"buildTargets":["all","bitmap.o","bitmap_d.o","clean","test","test.o","testGDB","test_d.o"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
+{"buildTargets":[".PHONY","all","bitmap.o","bitmap_d.o","clean","test","test.o","testGDB","test_d.o"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}

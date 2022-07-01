@@ -2,7 +2,6 @@
 CC = gcc
 CFLAGS = -Wall -pedantic -O2 -c
 D_CFLAGS = -Wall -pedantic -g -c
-CLIBS = -lm
 
 PROGNAME = test
 
@@ -11,13 +10,13 @@ PROGNAME = test
 all:
 	@echo "Make options:"
 	@echo "  make test    --> build test program"
-	@echo "  make testGDB --> build debug version"
+	@echo "  make testGDB --> build test debug version"
 	@echo "  make clean   --> erase program and build files"
 
 
 # Optimized version
 test: bitmap.o test.o
-	$(CC) -o $@ $^ $(CLIBS)
+	$(CC) -o $@ $^
 
 test.o: test.c
 	$(CC) $(CFLAGS) -o $@ $^

@@ -1,69 +1,127 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
+ 
 # Built for x86_64-pc-linux-gnu
+ 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
+ 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+ 
 # This is free software: you are free to change and redistribute it.
+ 
 # There is NO WARRANTY, to the extent permitted by law.
+ 
 
-# Make data base, printed on Fri Jul  1 08:17:43 2022
+ 
+# Make data base, printed on Fri Jul  1 14:35:05 2022
+ 
 
 # Variables
+ 
 
+ 
 # environment
+ 
 GDK_BACKEND = x11
+ 
 # environment
+ 
 LC_ALL = C
+ 
 # environment
+ 
 GJS_DEBUG_OUTPUT = stderr
+ 
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-c7feecd6-5b17-4e2e-96a3-360707c71113.sock
+ 
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-ae8a46ea-f9fe-4783-b693-08a033c5414b.sock
+ 
 # environment
+ 
 VSCODE_CWD = /home/vitor
+ 
 # environment
+ 
 WINDOWPATH = 2
+ 
 # environment
+ 
 NVM_DIR = /home/hitman/.nvm
+ 
 # environment
+ 
 GDM_LANG = en_US.UTF-8
+ 
 # default
+ 
 MAKE_COMMAND := make
+ 
 # environment
+ 
 QT_ACCESSIBILITY = 1
-# makefile (from 'Makefile', line 5)
-CLIBS = -lm
+ 
 # automatic
+ 
 @D = $(patsubst %/,%,$(dir $@))
+ 
 # environment
+ 
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+ 
 # default
+ 
 .VARIABLES := 
+ 
 # environment
+ 
 PWD = /home/vitor/Desktop/Vitor Henrique/programing/C/GIT_HUB/BitmapLib
+ 
 # automatic
+ 
 %D = $(patsubst %/,%,$(dir $%))
+ 
 # environment
+ 
 XDG_DATA_DIRS = /usr/share/gnome:/usr/local/share/:/usr/share/
+ 
 # automatic
+ 
 ^D = $(patsubst %/,%,$(dir $^))
+ 
 # environment
+ 
 VSCODE_LOG_STACK = false
+ 
 # automatic
+ 
 %F = $(notdir $%)
+ 
 # environment
+ 
 VSCODE_CODE_CACHE_PATH = /home/vitor/.config/Code/CachedData/30d9c6cd9483b2cc586687151bcbcd635f373630
+ 
 # environment
+ 
 LANG = C
+ 
 # environment
  
 XAUTHORITY = /run/user/1000/gdm/Xauthority
+ 
 # default
+ 
 .LOADED := 
+ 
 # default
+ 
 .INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
+ 
 # makefile
+ 
 MAKEFLAGS = pqrR
+ 
 # makefile
+ 
 CURDIR := /home/vitor/Desktop/Vitor Henrique/programing/C/GIT_HUB/BitmapLib
 # environment
 VSCODE_PIPE_LOGGING = true
@@ -90,7 +148,7 @@ MAKEFILE_LIST := Makefile
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 75721
+VSCODE_PID = 80483
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
@@ -171,10 +229,10 @@ GTK_MODULES = gail:atk-bridge
 MAKE_VERSION := 4.3
 # environment
 MANAGERPID = 1248
-# makefile (from 'Makefile', line 7)
+# makefile (from 'Makefile', line 6)
 PROGNAME = test
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 75721
+GIO_LAUNCHED_DESKTOP_FILE_PID = 80483
 # environment
 SSH_AGENT_PID = 1433
 # environment
@@ -218,7 +276,7 @@ XDG_MENU_PREFIX = gnome-
 # environment
 GDMSESSION = gnome
 # variable set hash-table stats:
-# Load=103/1024=10%, Rehash=0, Collisions=4/136=3%
+# Load=102/1024=10%, Rehash=0, Collisions=4/135=3%
 
 # Pattern-specific Variable Values
 
@@ -240,13 +298,13 @@ bitmap_d.o: bitmap.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 36):
+#  recipe to execute (from 'Makefile', line 35):
 	$(CC) $(D_CFLAGS) -o $@ $^
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-02-01 17:11:17.537136
+#  Last modified 2022-07-01 14:35:02.685277739
 #  File has been updated.
 #  Successfully updated.
 
@@ -254,7 +312,7 @@ test_d.o: test.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 33):
+#  recipe to execute (from 'Makefile', line 32):
 	$(CC) $(D_CFLAGS) -o $@ $^
 	
 
@@ -263,7 +321,7 @@ clean:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 39):
+#  recipe to execute (from 'Makefile', line 38):
 	rm test testGDB *.o out*
 
 # Not a target:
@@ -310,32 +368,31 @@ all:
 # | := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=1/11=9%
-#  recipe to execute (from 'Makefile', line 12):
+#  recipe to execute (from 'Makefile', line 11):
 	@echo "Make options:"
 	@echo "  make test    --> build test program"
-	@echo "  make testGDB --> build debug version"
+	@echo "  make testGDB --> build test debug version"
 	@echo "  make clean   --> erase program and build files"
 
 testGDB: bitmap_d.o test_d.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 30):
+#  recipe to execute (from 'Makefile', line 29):
 	$(CC) -o $@ $^ $(CLIBS)
- 
 
 test: bitmap.o test.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 20):
-	$(CC) -o $@ $^ $(CLIBS)
+#  recipe to execute (from 'Makefile', line 19):
+	$(CC) -o $@ $^
 
 test.o: test.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 23):
+#  recipe to execute (from 'Makefile', line 22):
 	$(CC) $(CFLAGS) -o $@ $^
 	
 
@@ -344,6 +401,7 @@ test.o: test.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+ 
 
 .PHONY: all clean
 #  Implicit rule search has not been done.
@@ -354,7 +412,8 @@ bitmap.o: bitmap.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 26):
+#  recipe to execute (from 'Makefile', line 25):
+ 
 	$(CC) $(CFLAGS) -o $@ $^
 
 # files hash-table stats:
@@ -371,6 +430,6 @@ bitmap.o: bitmap.c
 # strcache performance: lookups = 50 / hit rate = 50%
 # hash-table stats:
 # Load=25/8192=0%, Rehash=0, Collisions=0/50=0%
-# Finished Make data base on Fri Jul  1 08:17:43 2022
+# Finished Make data base on Fri Jul  1 14:35:05 2022
 
  

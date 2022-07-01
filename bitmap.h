@@ -200,12 +200,6 @@ struct img
     uint8_t **Pixel8;               /* 1 channel with 8 bits (Grayscale) */
 };
 
-enum img_type
-{
-    RGB_24BITS,
-    GREY_8BITS
-};
-
 enum color_depth
 {
     DEPTH24 = 24,
