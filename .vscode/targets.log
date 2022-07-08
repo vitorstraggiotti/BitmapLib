@@ -1,127 +1,66 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
- 
 # Built for x86_64-pc-linux-gnu
- 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
- 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
- 
 # This is free software: you are free to change and redistribute it.
- 
 # There is NO WARRANTY, to the extent permitted by law.
- 
 
- 
-# Make data base, printed on Fri Jul  1 14:35:05 2022
- 
+# Make data base, printed on Fri Jul  8 09:44:57 2022
 
 # Variables
- 
 
- 
 # environment
- 
 GDK_BACKEND = x11
- 
 # environment
- 
 LC_ALL = C
- 
 # environment
- 
 GJS_DEBUG_OUTPUT = stderr
- 
 # environment
- 
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-ae8a46ea-f9fe-4783-b693-08a033c5414b.sock
- 
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-92b8c0b3-8b61-47a1-8ef5-57c06263c87d.sock
 # environment
- 
 VSCODE_CWD = /home/vitor
- 
 # environment
- 
 WINDOWPATH = 2
- 
 # environment
- 
 NVM_DIR = /home/hitman/.nvm
- 
 # environment
- 
 GDM_LANG = en_US.UTF-8
- 
 # default
- 
 MAKE_COMMAND := make
- 
 # environment
- 
 QT_ACCESSIBILITY = 1
- 
 # automatic
- 
 @D = $(patsubst %/,%,$(dir $@))
- 
 # environment
- 
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
- 
 # default
- 
 .VARIABLES := 
- 
 # environment
- 
 PWD = /home/vitor/Desktop/Vitor Henrique/programing/C/GIT_HUB/BitmapLib
- 
 # automatic
- 
 %D = $(patsubst %/,%,$(dir $%))
- 
 # environment
- 
 XDG_DATA_DIRS = /usr/share/gnome:/usr/local/share/:/usr/share/
- 
 # automatic
- 
 ^D = $(patsubst %/,%,$(dir $^))
- 
 # environment
- 
 VSCODE_LOG_STACK = false
- 
 # automatic
- 
 %F = $(notdir $%)
- 
 # environment
- 
 VSCODE_CODE_CACHE_PATH = /home/vitor/.config/Code/CachedData/30d9c6cd9483b2cc586687151bcbcd635f373630
- 
 # environment
- 
 LANG = C
- 
 # environment
- 
 XAUTHORITY = /run/user/1000/gdm/Xauthority
- 
 # default
- 
 .LOADED := 
- 
 # default
- 
 .INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
- 
 # makefile
- 
 MAKEFLAGS = pqrR
- 
 # makefile
- 
 CURDIR := /home/vitor/Desktop/Vitor Henrique/programing/C/GIT_HUB/BitmapLib
 # environment
 VSCODE_PIPE_LOGGING = true
@@ -148,13 +87,13 @@ MAKEFILE_LIST := Makefile
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 80483
+VSCODE_PID = 67324
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/MainDebianVitor:@/tmp/.ICE-unix/1474,unix/MainDebianVitor:/tmp/.ICE-unix/1474
+SESSION_MANAGER = local/MainDebianVitor:@/tmp/.ICE-unix/1486,unix/MainDebianVitor:/tmp/.ICE-unix/1486
 # automatic
 *F = $(notdir $*)
 # environment
@@ -192,7 +131,7 @@ LANGUAGE = en_US:en
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = aa1c02792dcb4ef49157a23ea8955c96
+INVOCATION_ID = 5b8ec101d77e4de6a2b12f120523973f
 # environment
 VSCODE_LOG_NATIVE = false
 # environment
@@ -228,13 +167,13 @@ GTK_MODULES = gail:atk-bridge
 # default
 MAKE_VERSION := 4.3
 # environment
-MANAGERPID = 1248
+MANAGERPID = 1244
 # makefile (from 'Makefile', line 6)
 PROGNAME = test
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 80483
+GIO_LAUNCHED_DESKTOP_FILE_PID = 67324
 # environment
-SSH_AGENT_PID = 1433
+SSH_AGENT_PID = 1444
 # environment
 _ = /usr/share/code/code
 # environment
@@ -246,7 +185,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # makefile (from 'Makefile', line 4)
 D_CFLAGS = -Wall -pedantic -g -c
 # environment
-JOURNAL_STREAM = 8:22662
+JOURNAL_STREAM = 8:22634
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -284,9 +223,9 @@ GDMSESSION = gnome
 
 # Directories
 
-# . (device 2053, inode 98176257): 12 files, no impossibilities.
+# . (device 2053, inode 98176257): 15 files, no impossibilities.
 
-# 12 files, no impossibilities in 1 directories.
+# 15 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -340,6 +279,7 @@ bitmap.c:
 .DEFAULT:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 
 all:
@@ -401,7 +341,6 @@ test.o: test.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
- 
 
 .PHONY: all clean
 #  Implicit rule search has not been done.
@@ -413,7 +352,6 @@ bitmap.o: bitmap.c
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 25):
- 
 	$(CC) $(CFLAGS) -o $@ $^
 
 # files hash-table stats:
@@ -427,9 +365,9 @@ bitmap.o: bitmap.c
 # strcache buffers: 1 (0) / strings = 25 / storage = 230 B / avg = 9 B
 # current buf: size = 8162 B / used = 230 B / count = 25 / avg = 9 B
 
-# strcache performance: lookups = 50 / hit rate = 50%
+# strcache performance: lookups = 53 / hit rate = 52%
 # hash-table stats:
-# Load=25/8192=0%, Rehash=0, Collisions=0/50=0%
-# Finished Make data base on Fri Jul  1 14:35:05 2022
+# Load=25/8192=0%, Rehash=0, Collisions=0/53=0%
+# Finished Make data base on Fri Jul  8 09:44:57 2022
 
  

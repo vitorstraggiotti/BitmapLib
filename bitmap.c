@@ -501,7 +501,7 @@ int save_BMP(img_t *Img, const char *Filename)
             }
             
             /* Writing image */
-            if (write_pixel_matrix_to_file(Img, DEPTH24, ImageFile) == -1)
+            if (write_pixel_matrix_to_file(Img, DEPTH8, ImageFile) == -1)
             {
                 return -1;
             }

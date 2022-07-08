@@ -103,11 +103,17 @@ int main(int argc, char *argv[])
 			if((Row % 7) == 0)
 				ImgNew24->Pixel24[Row][Column].Blue = 255;
 
-			if(((Row % 2) == 0) && ((Column % 2) == 0))
-				ImgNew8->Pixel8[Row][Column] = 255;
 		}
 	}
 
+	for(int32_t Row = 0; Row < ImgNew8->Height; Row++)
+	{
+		for(int32_t Column = 0; Column < ImgNew8->Width; Column++)
+		{
+			if((Row % 10) == 0)
+				ImgNew8->Pixel8[Row][Column] = 127;
+		}
+	}
 
 	/****************************************************************************/
 	/*                     Testing function: new_BMP_as_size()                  */
